@@ -25,9 +25,19 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
         #map { height: 100%; width: 100%; z-index: 1; }
-        /* Style pour les marqueurs numérotés */
         .number-marker {
             background: #4f46e5;
+            border: 2px solid white;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .home-marker {
+            background: #ef4444;
             border: 2px solid white;
             border-radius: 50%;
             color: white;
@@ -45,7 +55,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Composant Icon pour Lucide
         const Icon = ({ name, className = "w-4 h-4" }) => {
             const iconRef = useRef(null);
             useEffect(() => {
@@ -59,7 +68,6 @@
             return <i data-lucide={name} className={className}></i>;
         };
 
-        // Composant de Carte OpenStreetMap avec Tracé d'Itinéraire
         const MapContainer = ({ activities }) => {
             const mapRef = useRef(null);
             const leafletMap = useRef(null);
@@ -67,11 +75,10 @@
             const routeLayer = useRef(null);
 
             useEffect(() => {
-                // Initialisation de la carte si non existante
                 if (!leafletMap.current) {
                     leafletMap.current = L.map(mapRef.current).setView([47.4, 0.5], 9);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     }).addTo(leafletMap.current);
                     markerLayer.current = L.layerGroup().addTo(leafletMap.current);
                     routeLayer.current = L.layerGroup().addTo(leafletMap.current);
@@ -83,11 +90,10 @@
                     
                     const coordsList = [];
 
-                    // Géocodage séquentiel pour éviter le blocage de l'API Nominatim
                     for (let i = 0; i < activities.length; i++) {
                         const act = activities[i];
                         try {
-                            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(act.addr + ", France")}&limit=1`);
+                            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(act.addr)}&limit=1`);
                             const data = await response.json();
 
                             if (data && data[0]) {
@@ -96,27 +102,32 @@
                                 const pos = [lat, lon];
                                 coordsList.push(pos);
 
-                                // Création d'un icône numéroté
-                                const numberIcon = L.divIcon({
-                                    className: 'number-marker',
-                                    html: i + 1,
+                                const isHome = act.name.toLowerCase().includes("gîte");
+                                const iconClass = isHome ? 'home-marker' : 'number-marker';
+                                const iconHtml = isHome ? '<i data-lucide="home" style="width:12px;height:12px;margin-top:4px;display:inline-block"></i>' : (i + 1);
+
+                                const customIcon = L.divIcon({
+                                    className: iconClass,
+                                    html: iconHtml,
                                     iconSize: [24, 24],
                                     iconAnchor: [12, 12]
                                 });
 
-                                L.marker(pos, { icon: numberIcon })
+                                L.marker(pos, { icon: customIcon })
                                     .addTo(markerLayer.current)
                                     .bindPopup(`<b>${act.name}</b><br>${act.addr}`);
+                                
+                                if (isHome) {
+                                    setTimeout(() => lucide.createIcons(), 100);
+                                }
                             }
                         } catch (err) {
                             console.error("Erreur géo OSM:", err);
                         }
-                        // Petit délai pour respecter les limites de Nominatim
-                        await new Promise(r => setTimeout(r, 200));
+                        await new Promise(r => setTimeout(r, 250));
                     }
 
                     if (coordsList.length > 1) {
-                        // Dessiner la ligne entre les étapes
                         L.polyline(coordsList, {
                             color: '#4f46e5',
                             weight: 4,
@@ -125,7 +136,6 @@
                             lineJoin: 'round'
                         }).addTo(routeLayer.current);
 
-                        // Ajuster la vue pour voir tout le trajet
                         const bounds = L.latLngBounds(coordsList);
                         leafletMap.current.fitBounds(bounds, { padding: [50, 50] });
                     } else if (coordsList.length === 1) {
@@ -152,6 +162,7 @@
             const [error, setError] = useState("");
 
             const apiKey = ""; 
+            const homeAddr = "37140 La Chapelle-sur-Loire, France";
 
             const itinerary = [
                 {
@@ -159,11 +170,12 @@
                     title: "Le Voyage & Arrivée",
                     type: "Repos",
                     location: "La Rochelle ➔ La Chapelle",
-                    description: "Départ de la côte pour rejoindre les bords de Loire. Pause pique-nique en chemin pour couper la route.",
+                    stats: { km: 210, time: "2h50" },
+                    description: "Trajet depuis la côte. Pensez à faire le plein à La Rochelle. Arrivée pour l'état des lieux à 17h.",
                     activities: [
-                        { name: "Départ de La Rochelle (13h30)", addr: "La Rochelle, France", img: null },
+                        { name: "Départ de La Rochelle", addr: "La Rochelle, France", img: null },
                         { name: "Pause Pique-nique (Niort)", addr: "Niort, France", img: "https://images.unsplash.com/photo-1594498653385-d5172c532c00?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Arrivée au gîte (17h00)", addr: "La Chapelle-sur-Loire, France", img: null }
+                        { name: "Gîte (Arrivée 17h)", addr: homeAddr, img: null }
                     ],
                     color: "bg-emerald-100"
                 },
@@ -172,11 +184,14 @@
                     title: "L'Ouest Immédiat",
                     type: "Activité",
                     location: "Ussé & Azay-le-Rideau",
-                    description: "Des joyaux à moins de 30 minutes du gîte pour commencer en douceur.",
+                    stats: { km: 45, time: "1h10" },
+                    description: "Une boucle très courte pour commencer sans fatigue.",
                     activities: [
-                        { name: "Château d'Ussé", addr: "37420 Rigny-Ussé", img: "https://images.unsplash.com/photo-1590059392604-0c5875883015?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Château de Langeais", addr: "37130 Langeais", img: "https://images.unsplash.com/photo-1628153400283-7729f635652f?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Château d'Azay-le-Rideau", addr: "37190 Azay-le-Rideau", img: "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&q=80&w=800" }
+                        { name: "Départ du Gîte", addr: homeAddr, img: null },
+                        { name: "Château d'Ussé", addr: "37420 Rigny-Ussé, France", img: "https://images.unsplash.com/photo-1590059392604-0c5875883015?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Château de Langeais", addr: "37130 Langeais, France", img: "https://images.unsplash.com/photo-1628153400283-7729f635652f?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Château d'Azay-le-Rideau", addr: "37190 Azay-le-Rideau, France", img: "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Retour au Gîte", addr: homeAddr, img: null }
                     ],
                     color: "bg-blue-100"
                 },
@@ -185,9 +200,12 @@
                     title: "Le Grand Safari",
                     type: "Activité",
                     location: "La Flèche",
-                    description: "Une journée consacrée à la faune dans l'un des plus beaux zoos d'Europe.",
+                    stats: { km: 115, time: "1h55" },
+                    description: "Trajet vers le Nord à travers les forêts du Maine.",
                     activities: [
-                        { name: "Zoo de la Flèche", addr: "72200 La Flèche", img: "https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&q=80&w=800" }
+                        { name: "Départ du Gîte", addr: homeAddr, img: null },
+                        { name: "Zoo de la Flèche", addr: "72200 La Flèche, France", img: "https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Retour au Gîte", addr: homeAddr, img: null }
                     ],
                     color: "bg-orange-100"
                 },
@@ -196,10 +214,13 @@
                     title: "Histoire & Terroir",
                     type: "Activité",
                     location: "Fontevraud & Vouvray",
-                    description: "Matinée majestueuse à l'Abbaye de Fontevraud et après-midi dégustation à Vouvray.",
+                    stats: { km: 110, time: "1h40" },
+                    description: "Matinée majestueuse à l'Abbaye et après-midi dégustation dans les caves.",
                     activities: [
-                        { name: "Abbaye de Fontevraud", addr: "49590 Fontevraud-l'Abbaye", img: "https://images.unsplash.com/photo-1599424423956-6644f776274e?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Caves de Vouvray", addr: "37210 Vouvray", img: "https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?auto=format&fit=crop&q=80&w=800" }
+                        { name: "Départ du Gîte", addr: homeAddr, img: null },
+                        { name: "Abbaye de Fontevraud", addr: "49590 Fontevraud-l'Abbaye, France", img: "https://images.unsplash.com/photo-1599424423956-6644f776274e?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Caves de Vouvray", addr: "37210 Vouvray, France", img: "https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Retour au Gîte", addr: homeAddr, img: null }
                     ],
                     color: "bg-emerald-100"
                 },
@@ -208,11 +229,14 @@
                     title: "La Vallée des Rois",
                     type: "Activité",
                     location: "Chenonceau & Amboise",
-                    description: "Le secteur d'Amboise, concentré d'histoire et de génie.",
+                    stats: { km: 125, time: "1h50" },
+                    description: "Le secteur d'Amboise, concentré d'histoire sur les bords du Cher et de la Loire.",
                     activities: [
-                        { name: "Château de Chenonceau", addr: "37150 Chenonceaux", img: "https://images.unsplash.com/photo-1564397241838-5f5033767222?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Le Clos Lucé", addr: "2 Rue du Clos Lucé, 37400 Amboise", img: "https://images.unsplash.com/photo-1505881502353-a1986add3762?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Parc des Mini-Châteaux", addr: "Boulevard Saint-Denis Hors, 37400 Amboise", img: "https://images.unsplash.com/photo-1493246507139-91e8bef99c17?auto=format&fit=crop&q=80&w=800" }
+                        { name: "Départ du Gîte", addr: homeAddr, img: null },
+                        { name: "Château de Chenonceau", addr: "37150 Chenonceaux, France", img: "https://images.unsplash.com/photo-1564397241838-5f5033767222?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Le Clos Lucé", addr: "2 Rue du Clos Lucé, 37400 Amboise, France", img: "https://images.unsplash.com/photo-1505881502353-a1986add3762?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Parc des Mini-Châteaux", addr: "Boulevard Saint-Denis Hors, 37400 Amboise, France", img: "https://images.unsplash.com/photo-1493246507139-91e8bef99c17?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Retour au Gîte", addr: homeAddr, img: null }
                     ],
                     color: "bg-blue-100"
                 },
@@ -221,10 +245,13 @@
                     title: "Les Géants du Loir-et-Cher",
                     type: "Activité",
                     location: "Chambord & Blois",
-                    description: "Le trajet le plus long de la semaine, mais pour les sites les plus impressionnants.",
+                    stats: { km: 195, time: "2h45" },
+                    description: "La plus grosse journée de route. Prévoyez un départ vers 8h30.",
                     activities: [
-                        { name: "Château de Chambord", addr: "41250 Chambord", img: "https://images.unsplash.com/photo-1605553229605-779899f80a2b?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Château Royal de Blois", addr: "41000 Blois", img: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&q=80&w=800" }
+                        { name: "Départ du Gîte", addr: homeAddr, img: null },
+                        { name: "Château de Chambord", addr: "41250 Chambord, France", img: "https://images.unsplash.com/photo-1605553229605-779899f80a2b?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Château Royal de Blois", addr: "41000 Blois, France", img: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Retour au Gîte", addr: homeAddr, img: null }
                     ],
                     color: "bg-blue-100"
                 },
@@ -233,18 +260,21 @@
                     title: "Jardins & Forteresse",
                     type: "Activité",
                     location: "Villandry & Montbazon",
-                    description: "Focus sur l'esthétique des jardins et l'immersion médiévale.",
+                    stats: { km: 70, time: "1h20" },
+                    description: "Dernière journée calme pour profiter une dernière fois de la piscine.",
                     activities: [
-                        { name: "Château de Villandry", addr: "37510 Villandry", img: "https://images.unsplash.com/photo-1621274154181-e28373b52d43?auto=format&fit=crop&q=80&w=800" },
-                        { name: "Forteresse de Montbazon", addr: "37250 Montbazon", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800" }
+                        { name: "Départ du Gîte", addr: homeAddr, img: null },
+                        { name: "Château de Villandry", addr: "37510 Villandry, France", img: "https://images.unsplash.com/photo-1621274154181-e28373b52d43?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Forteresse de Montbazon", addr: "37250 Montbazon, France", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800" },
+                        { name: "Retour au Gîte", addr: homeAddr, img: null }
                     ],
                     color: "bg-blue-100"
                 }
             ];
 
             const optionalVisits = [
-                { name: "Château de Saumur", addr: "49400 Saumur", reason: "Le plus proche (15 min).", img: "https://images.unsplash.com/photo-1628153400283-7729f635652f?auto=format&fit=crop&q=80&w=800" },
-                { name: "Forteresse de Chinon", addr: "37500 Chinon", reason: "Immersion médiévale historique.", img: "https://images.unsplash.com/photo-1590059392604-0c5875883015?auto=format&fit=crop&q=80&w=800" }
+                { name: "Château de Saumur", addr: "49400 Saumur, France", reason: "Le plus proche (15 min).", img: "https://images.unsplash.com/photo-1628153400283-7729f635652f?auto=format&fit=crop&q=80&w=800" },
+                { name: "Forteresse de Chinon", addr: "37500 Chinon, France", reason: "Immersion médiévale historique.", img: "https://images.unsplash.com/photo-1590059392604-0c5875883015?auto=format&fit=crop&q=80&w=800" }
             ];
 
             const askAssistant = async () => {
@@ -342,34 +372,54 @@
                             
                             {activeTab === 'itinerary' ? (
                                 <section className={`p-6 rounded-3xl ${itinerary[activeDay].color} border border-white/50 shadow-sm animate-in fade-in duration-300`}>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="px-3 py-1 bg-white/60 rounded-full text-[10px] font-bold uppercase text-slate-700">
-                                            {itinerary[activeDay].type}
-                                        </span>
-                                        <span className="text-slate-600 text-xs flex items-center gap-1 font-medium">
-                                            <Icon name="MapPin" className="w-3 h-3" /> {itinerary[activeDay].location}
-                                        </span>
+                                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <span className="px-3 py-1 bg-white/60 rounded-full text-[10px] font-bold uppercase text-slate-700">
+                                                {itinerary[activeDay].type}
+                                            </span>
+                                            <span className="text-slate-600 text-xs flex items-center gap-1 font-medium">
+                                                <Icon name="MapPin" className="w-3 h-3" /> {itinerary[activeDay].location}
+                                            </span>
+                                        </div>
+                                        
+                                        {/* Stats Bar */}
+                                        <div className="flex items-center gap-4 bg-white/40 px-4 py-2 rounded-2xl border border-white/20 text-xs font-bold text-slate-700">
+                                            <div className="flex items-center gap-1.5">
+                                                <Icon name="Navigation" className="w-3.5 h-3.5 text-indigo-600" />
+                                                {itinerary[activeDay].stats.km} km
+                                            </div>
+                                            <div className="w-px h-3 bg-slate-400 opacity-30"></div>
+                                            <div className="flex items-center gap-1.5">
+                                                <Icon name="Clock" className="w-3.5 h-3.5 text-indigo-600" />
+                                                ~{itinerary[activeDay].stats.time} de route
+                                            </div>
+                                        </div>
                                     </div>
+
                                     <h2 className="text-2xl font-black mb-3 tracking-tight">
                                         {itinerary[activeDay].dayName} : {itinerary[activeDay].title}
                                     </h2>
-                                    <p className="text-slate-700 mb-6 text-sm leading-relaxed max-w-3xl">{itinerary[activeDay].description}</p>
+                                    <p className="text-slate-700 mb-6 text-sm leading-relaxed max-w-3xl font-medium italic opacity-80">{itinerary[activeDay].description}</p>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {itinerary[activeDay].activities.map((act, i) => (
-                                            <div key={i} className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/40 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                            <div key={i} className={`bg-white/60 backdrop-blur-sm rounded-2xl border border-white/40 overflow-hidden shadow-sm hover:shadow-md transition-shadow ${act.name.includes("Gîte") ? 'opacity-80' : ''}`}>
                                                 {act.img && (
                                                     <div className="h-32 w-full overflow-hidden">
                                                         <img src={act.img} alt={act.name} className="w-full h-full object-cover" />
                                                     </div>
                                                 )}
                                                 <div className="p-4">
-                                                    <div className="font-bold text-sm text-slate-900 mb-2 flex items-center gap-1.5">
-                                                        <span className="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px]">{i + 1}</span>
+                                                    <div className="font-bold text-sm text-slate-900 mb-2 flex items-center gap-2">
+                                                        {act.name.includes("Gîte") ? (
+                                                            <Icon name="Home" className="w-4 h-4 text-red-500" />
+                                                        ) : (
+                                                            <span className="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-black">{i + 1}</span>
+                                                        )}
                                                         {act.name}
                                                     </div>
                                                     <div className="flex items-start gap-1.5 text-[11px] text-slate-600 bg-white/50 p-2 rounded-lg border border-white/20 font-mono select-all">
-                                                        <Icon name="Navigation" className="w-3 h-3 mt-0.5 text-indigo-500 flex-shrink-0" />
+                                                        <Icon name="CornerUpRight" className="w-3 h-3 mt-0.5 text-indigo-500 flex-shrink-0" />
                                                         {act.addr}
                                                     </div>
                                                 </div>
@@ -434,7 +484,7 @@
                             </section>
                         </div>
 
-                        {/* Map Area - Multi-POI and Polyline Route */}
+                        {/* Map Area */}
                         <div className="h-64 md:h-80 bg-slate-100 relative border-t border-slate-200 overflow-hidden">
                             <MapContainer 
                                 activities={activeTab === 'itinerary' 
@@ -444,7 +494,7 @@
                             />
                             <div className="absolute bottom-2 left-2 z-[1000] bg-white/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-slate-500 shadow-sm border border-slate-200">
                                 <Icon name="Map" className="w-3 h-3 inline mr-1" />
-                                Itinéraire OSM
+                                Itinéraire OSM (Boucle depuis le gîte)
                             </div>
                         </div>
                     </main>
