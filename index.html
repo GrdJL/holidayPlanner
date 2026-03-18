@@ -53,7 +53,13 @@
             const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState("");
 
-            const apiKey = ""; // Fourni par l'environnement d'exécution
+            /* IMPORTANT : Pour faire fonctionner la carte et l'assistant sur votre propre site :
+               1. Allez sur Google Cloud Console (https://console.cloud.google.com/)
+               2. Créez un projet et activez "Maps Embed API" et "Generative Language API".
+               3. Générez une clé API et placez-la entre les guillemets ci-dessous.
+               Note : Pour la sécurité, restreignez votre clé à votre nom de domaine.
+            */
+            const apiKey = ""; 
 
             const itinerary = [
                 {
@@ -159,6 +165,10 @@
             ];
 
             const askAssistant = async () => {
+                if (!apiKey) {
+                    setError("Clé API manquante dans le code source.");
+                    return;
+                }
                 if (!userQuery.trim()) return;
                 setIsLoading(true);
                 setError("");
@@ -348,14 +358,22 @@
                         </div>
 
                         {/* Map Area */}
-                        <div className="h-64 md:h-80 bg-slate-200 relative border-t border-slate-200">
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                style={{ border: 0 }}
-                                loading="lazy"
-                                src={`https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${encodeURIComponent(activeTab === 'itinerary' ? itinerary[activeDay].mapQuery : "Saumur, Chinon, France")}&zoom=${activeTab === 'itinerary' ? 8 : 10}`}
-                            ></iframe>
+                        <div className="h-64 md:h-80 bg-slate-200 relative border-t border-slate-200 flex items-center justify-center">
+                            {apiKey ? (
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    loading="lazy"
+                                    src={`https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${encodeURIComponent(activeTab === 'itinerary' ? itinerary[activeDay].mapQuery : "Saumur, Chinon, France")}&zoom=${activeTab === 'itinerary' ? 8 : 10}`}
+                                ></iframe>
+                            ) : (
+                                <div className="text-center p-6 bg-slate-100 rounded-xl border border-slate-300 mx-4 max-w-md">
+                                    <Icon name="Map" className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+                                    <h4 className="font-bold text-slate-800 mb-2">Carte Indisponible</h4>
+                                    <p className="text-xs text-slate-500">Pour afficher la carte sur votre site, vous devez insérer votre propre clé d'API Google Maps dans le fichier HTML (voir commentaires dans le code source).</p>
+                                </div>
+                            )}
                         </div>
                     </main>
                 </div>
