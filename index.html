@@ -133,6 +133,8 @@
             ];
 
             const optionalVisits = [
+                { name: "Bioparc de Doué-la-Fontaine", addr: "49700 Doué-la-Fontaine", coords: [47.191, -0.297], dist: "35km", dur: "35min", reason: "Le zoo le plus proche. Magnifique cadre troglodytique.", img: "https://a2x2y5u6.delivery.rocketcdn.me/wp-content/uploads/2020/07/Girafe_Bioparc-Joffrion-Moy-690x400.jpg" },
+                { name: "Grand Aquarium de Touraine", addr: "37400 Lussault-sur-Loire", coords: [47.387, 0.916], dist: "55km", dur: "45min", reason: "L'aquarium le plus proche, idéal par temps de pluie.", img: "https://media-cdn.tripadvisor.com/media/photo-s/0f/10/af/ea/le-tunnel-aux-requins.jpg" },
                 { name: "Cité Royale de Loches", addr: "Loches", coords: [47.126, 0.997], dist: "65km", dur: "1h00", reason: "Donjon massif et cité médiévale puissante.", img: "https://citeroyaleloches.fr/wp-content/uploads/2018/05/decouvrez_histoire.jpg" },
                 { name: "Le Château du Rivau", addr: "Lémeré", coords: [47.104, 0.323], dist: "25km", dur: "30min", reason: "Château féerique et jardins extraordinaires.", img: "https://upload.wikimedia.org/wikipedia/commons/7/78/Vue_de_la_fa%C3%A7ade_du_ch%C3%A2teau_du_Rivau_depuis_le_conservatoire_des_l%C3%A9gumes.jpg" },
                 { name: "Caves de Vouvray", addr: "Vouvray", coords: [47.411, 0.796], dist: "55km", dur: "45min", reason: "Fraîcheur des caves et dégustation.", img: "https://static.neopse.com/medias/p/2337/site/34/dc/ba/34dcbab7f5906624567ed2d7c723fea53e393950.jpg?v=v1" },
@@ -190,7 +192,7 @@
                                 <div class="p-3">
                                     <div class="font-bold text-sm mb-1">${act.name}</div>
                                     <a href="${googleMapsUrl}" target="_blank" class="flex items-center gap-1.5 text-[10px] text-blue-600 font-medium hover:underline">
-                                        <i data-lucide="navigation-2" style="width:10px;height:10px"></i> ${act.addr}
+                                        <i data-lucide="navigation-2" style="width:10px;height:10px"></i> GPS
                                     </a>
                                     ${act.dist ? `
                                     <div class="flex items-center gap-2 mt-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
@@ -353,6 +355,7 @@
                                             <div className="flex-1">
                                                 <div className="font-bold text-sm text-slate-800">{visit.name}</div>
                                                 <p className="text-[10px] text-slate-500 leading-tight mt-1">{visit.reason}</p>
+                                                <div className="text-[9px] font-bold text-indigo-600 mt-1 uppercase">{visit.dist} | {visit.dur}</div>
                                             </div>
                                         </div>
                                     ))}
