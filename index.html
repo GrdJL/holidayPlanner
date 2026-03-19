@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planning Vacances Val de Loire</title>
+    <title>Carte Vacances Val de Loire</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -19,47 +19,37 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        body { 
-            font-family: 'Inter', sans-serif; 
-            overscroll-behavior-y: contain; /* Empêche le pull-to-refresh accidentel */
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        #map { height: 100%; width: 100%; z-index: 1; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
+        #map { height: 100vh; width: 100vw; z-index: 1; }
+        
         .number-marker {
-            background: #4f46e5;
-            border: 2px solid white;
-            border-radius: 50%;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            line-height: 20px;
-            font-size: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            width: 28px; height: 28px; background: white; border: 2px solid #4f46e5;
+            border-radius: 50%; color: #4f46e5; font-weight: 800; text-align: center;
+            line-height: 24px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .home-marker {
-            background: #ef4444;
-            border: 2px solid white;
-            border-radius: 50%;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            line-height: 20px;
-            font-size: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            width: 32px; height: 32px; background: #ef4444; border: 2px solid white;
+            border-radius: 50%; color: white; font-weight: 800; text-align: center;
+            line-height: 28px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        /* Animation pour le menu mobile */
-        .sidebar-transition {
-            transition: transform 0.3s ease-in-out;
-        }
+        
+        .leaflet-popup-content-wrapper { border-radius: 16px; padding: 0; overflow: hidden; }
+        .leaflet-popup-content { margin: 0; width: 240px !important; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .modal-overlay { z-index: 2000; }
     </style>
 </head>
-<body class="bg-slate-50 overflow-hidden">
+<body class="bg-slate-100">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useMemo } = React;
 
         const Icon = ({ name, className = "w-4 h-4" }) => {
             const containerRef = useRef(null);
@@ -79,390 +69,293 @@
             return <span ref={containerRef} className="inline-flex items-center justify-center"></span>;
         };
 
-        const MapContainer = ({ activities }) => {
+        const App = () => {
             const mapRef = useRef(null);
             const leafletMap = useRef(null);
-            const markerLayer = useRef(null);
-            const routeLayer = useRef(null);
-
-            useEffect(() => {
-                if (!leafletMap.current) {
-                    leafletMap.current = L.map(mapRef.current).setView([47.3, 0.6], 9);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap'
-                    }).addTo(leafletMap.current);
-                    markerLayer.current = L.layerGroup().addTo(leafletMap.current);
-                    routeLayer.current = L.layerGroup().addTo(leafletMap.current);
-                }
-
-                const traceRoute = () => {
-                    markerLayer.current.clearLayers();
-                    routeLayer.current.clearLayers();
-                    const coordsList = [];
-                    activities.forEach((act, i) => {
-                        if (act.coords) {
-                            coordsList.push(act.coords);
-                            const isHome = act.name.toLowerCase().includes("gîte") || act.name.toLowerCase().includes("chapelle");
-                            const iconClass = isHome ? 'home-marker' : 'number-marker';
-                            const iconHtml = isHome ? 'H' : (i + 1);
-                            const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [24, 24], iconAnchor: [12, 12] });
-                            L.marker(act.coords, { icon: customIcon }).addTo(markerLayer.current).bindPopup(`<b>${act.name}</b><br>${act.addr}`);
-                        }
-                    });
-                    if (coordsList.length > 1) {
-                        L.polyline(coordsList, { color: '#4f46e5', weight: 4, opacity: 0.6, dashArray: '10, 10' }).addTo(routeLayer.current);
-                        leafletMap.current.fitBounds(L.latLngBounds(coordsList), { padding: [30, 30] });
-                    } else if (coordsList.length === 1) {
-                        leafletMap.current.setView(coordsList[0], 11);
-                    }
-                };
-                traceRoute();
-                
-                const handleResize = () => {
-                    if (leafletMap.current) leafletMap.current.invalidateSize();
-                };
-                window.addEventListener('resize', handleResize);
-                return () => window.removeEventListener('resize', handleResize);
-            }, [activities]);
-
-            return <div ref={mapRef} id="map" className="h-full w-full"></div>;
-        };
-
-        const App = () => {
-            const [activeTab, setActiveTab] = useState('itinerary');
-            const [activeDay, setActiveDay] = useState(0);
+            const layersRef = useRef({});
+            
+            const [selectedDay, setSelectedDay] = useState(null); 
+            const [focusedRoute, setFocusedRoute] = useState(null);
+            const [showAssistant, setShowAssistant] = useState(false);
+            const [showBooking, setShowBooking] = useState(false);
+            const [showOptional, setShowOptional] = useState(false);
             const [userQuery, setUserQuery] = useState("");
             const [aiResponse, setAiResponse] = useState("");
             const [isLoading, setIsLoading] = useState(false);
-            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-            const [error, setError] = useState("");
 
             const apiKey = ""; 
-            const homeAddr = "37140 La Chapelle-sur-Loire, France";
             const homeCoords = [47.243, 0.222];
+            const homeAddr = "37140 La Chapelle-sur-Loire";
 
             const itinerary = [
-                {
-                    dayName: "Samedi",
-                    title: "Le Voyage & Arrivée",
-                    type: "Repos",
-                    location: "La Rochelle ➔ La Chapelle",
-                    stats: { km: 215, time: "3h00" },
-                    description: "Départ de la Rochelle à 13h30. Éscale historique à Thouars pour le pique-nique avant de rejoindre le gîte.",
-                    activities: [
-                        { name: "Départ de La Rochelle", addr: "La Rochelle, France", img: null, booking: "none", coords: [46.160, -1.150] },
-                        { name: "Pause à Thouars", addr: "Place Saint-Laon, 79100 Thouars", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Thouars_-_vue_du_ch%C3%A2teau_et_du_pont_neuf.jpg/1024px-Thouars_-_vue_du_ch%C3%A2teau_et_du_pont_neuf.jpg", booking: "none", coords: [46.974, -0.215] },
-                        { name: "Gîte (Arrivée 17h)", addr: homeAddr, img: null, booking: "none", coords: homeCoords }
-                    ],
-                    color: "bg-emerald-100"
-                },
-                {
-                    dayName: "Dimanche",
-                    title: "L'Ouest Immédiat",
-                    type: "Activité",
-                    location: "Ussé & Azay-le-Rideau",
-                    stats: { km: 45, time: "1h10" },
-                    description: "Début du séjour avec les châteaux les plus proches de votre base.",
-                    activities: [
-                        { name: "Départ du Gîte", addr: homeAddr, coords: homeCoords },
-                        { name: "Château d'Ussé", addr: "37420 Rigny-Ussé", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Chateau_usse_2.jpg/1024px-Chateau_usse_2.jpg", booking: "low", coords: [47.250, 0.291] },
-                        { name: "Château de Langeais", addr: "37130 Langeais", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Ch%C3%A2teau_de_Langeais_001.jpg/1024px-Ch%C3%A2teau_de_Langeais_001.jpg", booking: "low", coords: [47.325, 0.406] },
-                        { name: "Château d'Azay-le-Rideau", addr: "37190 Azay-le-Rideau", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Ch%C3%A2teau_d%27Azay-le-Rideau_juin_2014_03.jpg/1024px-Ch%C3%A2teau_d%27Azay-le-Rideau_juin_2014_03.jpg", booking: "medium", coords: [47.259, 0.465] },
-                        { name: "Retour au Gîte", addr: homeAddr, coords: homeCoords }
-                    ],
-                    color: "bg-blue-100"
-                },
-                {
-                    dayName: "Lundi",
-                    title: "Le Grand Safari",
-                    type: "Activité",
-                    location: "La Flèche",
-                    stats: { km: 115, time: "1h55" },
-                    description: "Journée consacrée à la faune dans le Maine.",
-                    activities: [
-                        { name: "Départ du Gîte", addr: homeAddr, coords: homeCoords },
-                        { name: "Zoo de la Flèche", addr: "72200 La Flèche", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Siamang_zoo_la_fleche.jpg/1024px-Siamang_zoo_la_fleche.jpg", booking: "high", coords: [47.696, -0.075] },
-                        { name: "Retour au Gîte", addr: homeAddr, coords: homeCoords }
-                    ],
-                    color: "bg-orange-100"
-                },
-                {
-                    dayName: "Mardi",
-                    title: "Histoire & Terroir",
-                    type: "Activité",
-                    location: "Fontevraud & Vouvray",
-                    stats: { km: 110, time: "1h40" },
-                    description: "Matinée majestueuse à l'Abbaye et après-midi dégustation.",
-                    activities: [
-                        { name: "Départ du Gîte", addr: homeAddr, coords: homeCoords },
-                        { name: "Abbaye de Fontevraud", addr: "49590 Fontevraud-l'Abbaye", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Fontevraud_Abbaye_cloitre_Grand_Moutier.jpg/1024px-Fontevraud_Abbaye_cloitre_Grand_Moutier.jpg", booking: "low", coords: [47.181, 0.050] },
-                        { name: "Caves de Vouvray", addr: "37210 Vouvray", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Vouvray_Caves_Producteurs.jpg/1024px-Vouvray_Caves_Producteurs.jpg", booking: "high", coords: [47.411, 0.796] },
-                        { name: "Retour au Gîte", addr: homeAddr, coords: homeCoords }
-                    ],
-                    color: "bg-emerald-100"
-                },
-                {
-                    dayName: "Mercredi",
-                    title: "La Vallée des Rois",
-                    type: "Activité",
-                    location: "Chenonceau & Amboise",
-                    stats: { km: 125, time: "1h50" },
-                    description: "Concentré d'histoire sur les bords du Cher et de la Loire.",
-                    activities: [
-                        { name: "Départ du Gîte", addr: homeAddr, coords: homeCoords },
-                        { name: "Château de Chenonceau", addr: "37150 Chenonceaux", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Ch%C3%A2teau_de_Chenonceau_-_Ao%C3%BBt_2016.jpg/1024px-Ch%C3%A2teau_de_Chenonceau_-_Ao%C3%BBt_2016.jpg", booking: "high", coords: [47.325, 1.070] },
-                        { name: "Le Clos Lucé", addr: "37400 Amboise", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Clos_Luc%C3%A9_house.jpg/1024px-Clos_Luc%C3%A9_house.jpg", booking: "medium", coords: [47.410, 0.992] },
-                        { name: "Parc des Mini-Châteaux", addr: "37400 Amboise", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Parc_des_Mini-Ch%C3%A2teaux_-_Ch%C3%A2teau_de_Chenonceau.jpg/1024px-Parc_des_Mini-Ch%C3%A2teaux_-_Ch%C3%A2teau_de_Chenonceau.jpg", booking: "low", coords: [47.399, 1.001] },
-                        { name: "Retour au Gîte", addr: homeAddr, coords: homeCoords }
-                    ],
-                    color: "bg-blue-100"
-                },
-                {
-                    dayName: "Jeudi",
-                    title: "Les Géants du Loir-et-Cher",
-                    type: "Activité",
-                    location: "Chambord & Blois",
-                    stats: { km: 195, time: "2h45" },
-                    description: "La plus grosse journée de route pour les monuments les plus vastes.",
-                    activities: [
-                        { name: "Départ du Gîte", addr: homeAddr, coords: homeCoords },
-                        { name: "Château de Chambord", addr: "41250 Chambord", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Ch%C3%A2teau_de_Chambord_September_2016.jpg/1024px-Ch%C3%A2teau_de_Chambord_September_2016.jpg", booking: "medium", coords: [47.616, 1.517] },
-                        { name: "Château Royal de Blois", addr: "41000 Blois", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Ch%C3%A2teau_de_Blois_le_06_juillet_2013.jpg/1024px-Ch%C3%A2teau_de_Blois_le_06_juillet_2013.jpg", booking: "low", coords: [47.586, 1.330] },
-                        { name: "Retour au Gîte", addr: homeAddr, coords: homeCoords }
-                    ],
-                    color: "bg-blue-100"
-                },
-                {
-                    dayName: "Vendredi",
-                    title: "Jardins & Forteresse",
-                    type: "Activité",
-                    location: "Villandry & Montbazon",
-                    stats: { km: 70, time: "1h20" },
-                    description: "Dernière journée entre géométrie végétale et chevalerie.",
-                    activities: [
-                        { name: "Départ du Gîte", addr: homeAddr, coords: homeCoords },
-                        { name: "Château de Villandry", addr: "37510 Villandry", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Villandry_Chateau_Gardens_-_August_2014.jpg/1024px-Villandry_Chateau_Gardens_-_August_2014.jpg", booking: "low", coords: [47.340, 0.512] },
-                        { name: "Forteresse de Montbazon", addr: "37250 Montbazon", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Donjon_de_Montbazon_-_Ao%C3%BBt_2015.jpg/1024px-Donjon_de_Montbazon_-_Ao%C3%BBt_2015.jpg", booking: "low", coords: [47.286, 0.713] },
-                        { name: "Retour au Gîte", addr: homeAddr, coords: homeCoords }
-                    ],
-                    color: "bg-blue-100"
-                }
-            ];
-
-            const nightVisits = [
-                { name: "Nocturnes de Chenonceau", desc: "Jardins illuminés en musique.", tip: "Tous les soirs (21h30-23h30).", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Ch%C3%A2teau_de_Chenonceau_nuit.jpg/1024px-Ch%C3%A2teau_de_Chenonceau_nuit.jpg" },
-                { name: "Son et Lumière de Blois", desc: "Spectacle monumental à 360°.", tip: "Tous les soirs à 22h00.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Son_et_lumiere_chateau_blois.jpg/1024px-Son_et_lumiere_chateau_blois.jpg" },
-                { name: "Nocturnes d'Azay", desc: "Parcours onirique dans le parc.", tip: "Magique au bord de l'eau.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Ch%C3%A2teau_d%27Azay-le-Rideau_-_Night_view.JPG/1024px-Ch%C3%A2teau_d%27Azay-le-Rideau_-_Night_view.JPG" }
+                { id: 0, dayName: "Samedi", color: "#10b981", title: "Le Voyage", stats: { km: 205, time: "2h40" }, activities: [
+                    { name: "Départ La Rochelle", addr: "La Rochelle", coords: [46.160, -1.150] },
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "205km", dur: "2h40" }
+                ], description: "Trajet direct. Arrivée prévue en fin d'après-midi pour l'installation au gîte." },
+                { id: 1, dayName: "Dimanche", color: "#3b82f6", title: "L'Ouest & Nocturne", stats: { km: 45, time: "1h10" }, activities: [
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
+                    { name: "Château d'Ussé", addr: "Rigny-Ussé", coords: [47.250, 0.291], dist: "6km", dur: "10min", img: "https://montjoye.net/images/Centre-Val-de-Loire/indre-et-loire-37/usse/chateau-usse.webp" },
+                    { name: "Château de Langeais", addr: "Langeais", coords: [47.325, 0.406], dist: "11km", dur: "15min", img: "https://upload.wikimedia.org/wikipedia/commons/d/d7/Ch%C3%A2teau_de_Langeais._Indre-et-Loire%2C_France.jpg" },
+                    { name: "Azay-le-Rideau", addr: "Azay-le-Rideau", coords: [47.259, 0.465], dist: "10km", dur: "15min", img: "https://www.jardins-de-france.com/sites/default/files/public/styles/visuel-fiche-jardin/public/06112020-lrdrones-azay-le-rideau-1.jpg?itok=QFtdAQPp" },
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "20km", dur: "25min" }
+                ], nightEvent: "Les Nocturnes d'Azay : Déambulation lumineuse dans le parc." },
+                { id: 2, dayName: "Lundi", color: "#f97316", title: "Terroir & Saumur", stats: { km: 75, time: "1h30" }, activities: [
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
+                    { name: "Rochemenier", addr: "Village Troglodyte", coords: [47.234, -0.297], dist: "40km", dur: "45min", img: "https://louresse-rochemenier.fr/wp-content/uploads/2022/03/IMG_20210529_172450-scaled.jpg" },
+                    { name: "Château de Saumur", addr: "Saumur", coords: [47.256, -0.072], dist: "18km", dur: "25min", img: "https://www.ot-saumur.fr/wp-content/uploads/apidae/8db026651014c195df8070f2533b7642-35937807-1600x900.jpg" },
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "15km", dur: "20min" }
+                ]},
+                { id: 3, dayName: "Mardi", color: "#8b5cf6", title: "Abbaye & Forteresse", stats: { km: 55, time: "1h10" }, activities: [
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
+                    { name: "Abbaye Fontevraud", addr: "Fontevraud", coords: [47.181, 0.050], dist: "18km", dur: "20min", img: "https://www.fontevraud.fr/wp-content/uploads/2024/08/2021-05-21-%C2%A9Leonard-de-serres-20-1920x1281.jpg" },
+                    { name: "Forteresse Chinon", addr: "Chinon", coords: [47.167, 0.236], dist: "15km", dur: "20min", img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Chinon_-_Ch%C3%A2teau_vu_depuis_la_plage.jpg" },
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "20km", dur: "25min" }
+                ]},
+                { id: 4, dayName: "Mercredi", color: "#ec4899", title: "Chenonceau Nuit", stats: { km: 125, time: "2h00" }, activities: [
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
+                    { name: "Chenonceau", addr: "Chenonceaux", coords: [47.325, 1.070], dist: "65km", dur: "55min", img: "https://www.valdeloire-france.com/app/uploads/2023/05/chenonceau-0772-credit-lezbroz-teddy-verneuil-1024x682.webp" },
+                    { name: "Le Clos Lucé", addr: "Amboise", coords: [47.410, 0.992], dist: "20km", dur: "25min", img: "https://woody.cloudly.space/app/uploads/adt-touraine/2024/11/thumbs/Chateau_du_Clos_Luce_Amboise_Credit_ADT_Touraine-Loic_Lagarde_2030_03-1-1920x960-crop-1732285009.webp" },
+                    { name: "Mini-Châteaux", addr: "Amboise", coords: [47.399, 1.001], dist: "5km", dur: "10min", img: "https://cloudfront-eu-central-1.images.arcpublishing.com/leparisien/T5SN6DXJORHABDZ7METFCQ6RMY.jpg" },
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "52km", dur: "50min" }
+                ], nightEvent: "Promenades Nocturnes de Chenonceau : Jardins en musique (Dès 21h30)." },
+                { id: 5, dayName: "Jeudi", color: "#06b6d4", title: "Blois & Spectacle", stats: { km: 195, time: "2h45" }, activities: [
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
+                    { name: "Chambord", addr: "Chambord", coords: [47.616, 1.517], dist: "95km", dur: "1h15", img: "https://media.ouest-france.fr/v1/pictures/MjAyNTA5OTc1NmQ2NmRhMzkwYWE0OWU4ZGNmMTZlNjIwMGRhYzM?width=1260&height=708&focuspoint=50%2C25&cropresize=1&client_id=bpeditorial&sign=ec9a9ae65e69d724f02ae141adb68c1e17993b805a4c9e97bcea65f6e5417622" },
+                    { name: "Château de Blois", addr: "Blois", coords: [47.586, 1.330], dist: "15km", dur: "20min", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" },
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "85km", dur: "1h05" }
+                ], nightEvent: "Son et Lumière de Blois : Spectacle 360° dans la cour à 22h." },
+                { id: 6, dayName: "Vendredi", color: "#6366f1", title: "Villandry", stats: { km: 70, time: "1h35" }, activities: [
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
+                    { name: "Villandry", addr: "Villandry", coords: [47.340, 0.512], dist: "30km", dur: "30min", img: "https://www.chateauvillandry.fr/wp-content/uploads/2022/01/chateauvillandry-jardins-amour-bougie-2018-%C2%A9-f-paillet.jpg" },
+                    { name: "Montbazon", addr: "Montbazon", coords: [47.286, 0.713], dist: "20km", dur: "25min", img: "https://static.wixstatic.com/media/1bf685_094f2ea196a94b7498be4c7cbed10925~mv2.jpg/v1/fill/w_600,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/1bf685_094f2ea196a94b7498be4c7cbed10925~mv2.jpg" },
+                    { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "45km", dur: "45min" }
+                ]}
             ];
 
             const optionalVisits = [
-                { name: "Château de Saumur", addr: "49400 Saumur", reason: "Le plus proche (15 min).", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Ch%C3%A2teau_de_Saumur_-_01.jpg/1024px-Ch%C3%A2teau_de_Saumur_-_01.jpg", coords: [47.256, -0.072] },
-                { name: "Forteresse de Chinon", addr: "37500 Chinon", reason: "Médiéval et Jeanne d'Arc.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Chinon_Forteresse_Royale_-_01.jpg/1024px-Chinon_Forteresse_Royale_-_01.jpg", coords: [47.167, 0.236] },
-                { name: "Village de Rochemenier", addr: "49700 Louresse-Rochemenier", reason: "Site troglodyte unique.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Rochemenier_troglodytes_01.jpg/1024px-Rochemenier_troglodytes_01.jpg", coords: [47.234, -0.297] }
+                { name: "Cité Royale de Loches", addr: "Loches", coords: [47.126, 0.997], dist: "65km", dur: "1h00", reason: "Donjon massif et cité médiévale puissante.", img: "https://citeroyaleloches.fr/wp-content/uploads/2018/05/decouvrez_histoire.jpg" },
+                { name: "Forteresse Chinon", addr: "Chinon", coords: [47.167, 0.236], dist: "20km", dur: "25min", reason: "Château vu depuis la plage.", img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Chinon_-_Ch%C3%A2teau_vu_depuis_la_plage.jpg" },
+                { name: "Le Château du Rivau", addr: "Lémeré", coords: [47.104, 0.323], dist: "25km", dur: "30min", reason: "Château féerique et jardins extraordinaires.", img: "https://upload.wikimedia.org/wikipedia/commons/7/78/Vue_de_la_fa%C3%A7ade_du_ch%C3%A2teau_du_Rivau_depuis_le_conservatoire_des_l%C3%A9gumes.jpg" },
+                { name: "Caves de Vouvray", addr: "Vouvray", coords: [47.411, 0.796], dist: "55km", dur: "45min", reason: "Fraîcheur des caves et dégustation.", img: "https://static.neopse.com/medias/p/2337/site/34/dc/ba/34dcbab7f5906624567ed2d7c723fea53e393950.jpg?v=v1" },
+                { name: "Maison de la Magie", addr: "Blois", coords: [47.5865, 1.331], dist: "85km", dur: "1h05", reason: "Musée interactif face au château de Blois.", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" }
             ];
 
-            const askAssistant = async () => {
-                if (!apiKey) { setError("Clé API manquante."); return; }
-                if (!userQuery.trim()) return;
+            useEffect(() => {
+                if (!leafletMap.current) {
+                    leafletMap.current = L.map('map', { zoomControl: false }).setView([47.3, 0.6], 9);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '&copy; OpenStreetMap'
+                    }).addTo(leafletMap.current);
+                    layersRef.current.markers = L.layerGroup().addTo(leafletMap.current);
+                    layersRef.current.routes = L.layerGroup().addTo(leafletMap.current);
+                }
+                updateMapDisplay();
+            }, [selectedDay, focusedRoute]);
+
+            const updateMapDisplay = () => {
+                const { markers, routes } = layersRef.current;
+                markers.clearLayers();
+                routes.clearLayers();
+                const daysToDisplay = selectedDay !== null ? [itinerary[selectedDay]] : itinerary;
+                const allPoints = [];
+
+                daysToDisplay.forEach(day => {
+                    const coordsList = day.activities.map(a => a.coords);
+                    allPoints.push(...coordsList);
+                    const poly = L.polyline(coordsList, {
+                        color: day.color,
+                        weight: focusedRoute === day.id ? 8 : 4,
+                        opacity: focusedRoute === day.id ? 1 : 0.6,
+                        lineJoin: 'round'
+                    }).addTo(routes);
+                    
+                    poly.on('click', (e) => {
+                        L.DomEvent.stopPropagation(e);
+                        setSelectedDay(day.id);
+                        setFocusedRoute(day.id);
+                    });
+
+                    day.activities.forEach((act, i) => {
+                        const isHome = act.name === "La Chapelle-sur-Loire";
+                        const icon = L.divIcon({
+                            className: isHome ? 'home-marker' : 'number-marker',
+                            html: isHome ? 'H' : i + 1,
+                            iconSize: isHome ? [32, 32] : [28, 28]
+                        });
+                        const popupHtml = `
+                            <div class="flex flex-col">
+                                ${act.img ? `<img src="${act.img}" class="w-full h-24 object-cover">` : ''}
+                                <div class="p-3">
+                                    <div class="font-bold text-sm mb-1">${act.name}</div>
+                                    <div class="text-[10px] text-slate-500 mb-2">${act.addr}</div>
+                                    ${act.dist ? `
+                                    <div class="flex items-center gap-2 mt-1 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+                                        <div class="flex items-center gap-1 text-[10px] font-bold text-indigo-700"><i data-lucide="navigation" style="width:10px;height:10px"></i> ${act.dist}</div>
+                                        <div class="flex items-center gap-1 text-[10px] font-bold text-indigo-700"><i data-lucide="clock" style="width:10px;height:10px"></i> ${act.dur}</div>
+                                    </div>
+                                    <div class="mt-1 text-[8px] text-slate-400 italic">Depuis l'étape précédente</div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                        const marker = L.marker(act.coords, { icon }).addTo(markers).bindPopup(popupHtml);
+                        marker.on('popupopen', () => lucide.createIcons());
+                    });
+                });
+
+                if (allPoints.length > 0) {
+                    leafletMap.current.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40] });
+                }
+            };
+
+            const askAssistant = async (query) => {
+                if (!query.trim()) return;
                 setIsLoading(true); setAiResponse("");
                 try {
                     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: userQuery }] }] })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: query }] }] })
                     });
                     const data = await response.json();
-                    setAiResponse(data.candidates?.[0]?.content?.parts?.[0]?.text || "Pas de réponse.");
-                } catch (err) { setError("Assistant indisponible."); } finally { setIsLoading(false); }
-            };
-
-            const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
-            const selectNav = (tab, dayIdx = 0) => {
-                setActiveTab(tab);
-                setActiveDay(dayIdx);
-                if (window.innerWidth < 768) setIsSidebarOpen(false);
+                    setAiResponse(data.candidates?.[0]?.content?.parts?.[0]?.text || "Désolé.");
+                } catch (err) { setAiResponse("Erreur guide."); } finally { setIsLoading(false); }
             };
 
             return (
-                <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden relative">
-                    
-                    {/* Header Mobile */}
-                    <header className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-40 shadow-sm">
-                        <button onClick={toggleSidebar} className="p-2 -ml-2 text-indigo-700">
-                            <Icon name={isSidebarOpen ? "X" : "Menu"} className="w-6 h-6" />
+                <div className="relative w-screen h-screen overflow-hidden bg-slate-100">
+                    <div id="map"></div>
+
+                    <div className="absolute top-4 left-0 right-0 z-[1000] flex gap-2 px-4 overflow-x-auto pb-4 no-scrollbar">
+                        <button 
+                            onClick={() => { setSelectedDay(null); setFocusedRoute(null); }}
+                            className={`px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap shadow-lg transition-all ${selectedDay === null ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600'}`}
+                        >
+                            Tout le séjour
                         </button>
-                        <h1 className="font-bold text-slate-800 text-sm tracking-tight flex items-center gap-2">
-                            <Icon name="Calendar" className="w-4 h-4 text-indigo-600" />
-                            Val de Loire
-                        </h1>
-                        <div className="w-10"></div> {/* Spacer balance */}
-                    </header>
+                        {itinerary.map((day) => (
+                            <button 
+                                key={day.id} 
+                                onClick={() => { setSelectedDay(day.id); setFocusedRoute(day.id); }} 
+                                className={`px-5 py-2.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 transition-all ${selectedDay === day.id ? 'bg-slate-800 text-white ring-2 ring-indigo-500' : 'bg-white text-slate-600'}`}
+                            >
+                                <div className="w-2 h-2 rounded-full" style={{ background: day.color }}></div>{day.dayName}
+                            </button>
+                        ))}
+                    </div>
 
-                    {/* Sidebar / Drawer Navigation */}
-                    <div className={`fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`} onClick={toggleSidebar}></div>
-                    
-                    <aside className={`fixed inset-y-0 left-0 w-72 bg-white z-50 transform md:relative md:translate-x-0 sidebar-transition flex flex-col shadow-2xl md:shadow-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-                            <h1 className="text-xl font-black text-indigo-700 flex items-center gap-2">
-                                <Icon name="Calendar" className="w-6 h-6" /> Val de Loire
-                            </h1>
-                            <button className="md:hidden p-2 text-slate-400" onClick={toggleSidebar}><Icon name="ChevronLeft" className="w-5 h-5" /></button>
-                        </div>
-                        
-                        <nav className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-2">Planning Semaine</div>
-                            {itinerary.map((day, idx) => (
-                                <button key={idx} onClick={() => selectNav('itinerary', idx)} className={`w-full text-left p-3 rounded-xl transition-all border flex items-center justify-between ${activeTab === 'itinerary' && activeDay === idx ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white border-transparent hover:bg-slate-50 text-slate-600'}`}>
-                                    <div className="flex flex-col">
-                                        <span className={`text-[10px] font-bold uppercase ${activeTab === 'itinerary' && activeDay === idx ? 'text-indigo-100' : 'text-slate-400'}`}>{day.dayName}</span>
-                                        <div className="font-bold text-sm truncate">{day.title}</div>
-                                    </div>
-                                    {day.type === "Repos" ? <Icon name="Sun" className="w-4 h-4 opacity-70" /> : <Icon name="Car" className="w-4 h-4 opacity-70" />}
-                                </button>
-                            ))}
-                            
-                            <div className="mt-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-2">Exploration</div>
-                            <button onClick={() => selectNav('optional')} className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 ${activeTab === 'optional' ? 'bg-amber-500 text-white border-amber-500 shadow-md' : 'bg-white border-transparent hover:bg-slate-50 text-slate-600'}`}>
-                                <Icon name="Lightbulb" className="w-5 h-5" />
-                                <div className="font-bold text-sm">Plan B : Alternatives</div>
-                            </button>
-                            <button onClick={() => selectNav('night')} className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 ${activeTab === 'night' ? 'bg-indigo-900 text-white border-indigo-900 shadow-md' : 'bg-white border-transparent hover:bg-slate-50 text-slate-600'}`}>
-                                <Icon name="Moon" className="w-5 h-5" />
-                                <div className="font-bold text-sm">Soirées Nocturnes</div>
-                            </button>
-                            <button onClick={() => selectNav('booking')} className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 ${activeTab === 'booking' ? 'bg-red-600 text-white border-red-600 shadow-md' : 'bg-white border-transparent hover:bg-slate-50 text-slate-600'}`}>
-                                <Icon name="Ticket" className="w-5 h-5" />
-                                <div className="font-bold text-sm">Billetterie & Résas</div>
-                            </button>
-                        </nav>
-                        
-                        <div className="p-4 bg-slate-50 border-t border-slate-100">
-                             <div className="flex items-center gap-3 text-slate-500 mb-2">
-                                <Icon name="Home" className="w-4 h-4 text-indigo-500" />
-                                <div className="text-[10px] font-bold">BASE : La Chapelle-sur-Loire</div>
-                             </div>
-                        </div>
-                    </aside>
+                    <div className="absolute right-4 top-20 z-[1000] flex flex-col gap-3">
+                        <button onClick={() => setShowAssistant(true)} className="p-4 bg-white rounded-2xl shadow-xl text-amber-500 active:scale-95 transition-transform"><Icon name="Sparkles" className="w-6 h-6" /></button>
+                        <button onClick={() => setShowBooking(true)} className="p-4 bg-white rounded-2xl shadow-xl text-red-500 active:scale-95 transition-transform"><Icon name="Ticket" className="w-6 h-6" /></button>
+                        <button onClick={() => setShowOptional(true)} className="p-4 bg-white rounded-2xl shadow-xl text-indigo-500 active:scale-95 transition-transform"><Icon name="Lightbulb" className="w-6 h-6" /></button>
+                    </div>
 
-                    {/* Main Content Area */}
-                    <main className="flex-1 flex flex-col overflow-hidden relative">
-                        <div className="flex-1 p-3 md:p-6 overflow-y-auto space-y-4 md:space-y-6 custom-scrollbar pb-32">
-                            {activeTab === 'itinerary' && (
-                                <div className={`p-5 md:p-6 rounded-3xl ${itinerary[activeDay].color} border border-white/50 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className="px-2.5 py-1 bg-white/60 rounded-full text-[10px] font-extrabold uppercase text-slate-700">{itinerary[activeDay].type}</span>
-                                            <span className="text-slate-600 text-[10px] md:text-xs flex items-center gap-1 font-semibold"><Icon name="MapPin" className="w-3 h-3" /> {itinerary[activeDay].location}</span>
+                    {(focusedRoute !== null || selectedDay !== null) && (
+                        <div className="absolute bottom-4 left-4 right-4 z-[1000] md:max-w-sm md:left-auto md:right-6 animate-in slide-in-from-bottom-4 duration-300">
+                            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[45vh] flex flex-col">
+                                <div className="p-5 overflow-y-auto custom-scrollbar">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-inner" style={{ background: itinerary[focusedRoute ?? selectedDay].color }}><Icon name="Navigation" className="w-5 h-5" /></div>
+                                            <div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{itinerary[focusedRoute ?? selectedDay].dayName}</div>
+                                                <div className="font-black text-lg text-slate-800 leading-tight">{itinerary[focusedRoute ?? selectedDay].title}</div>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-3 bg-white/40 px-3 py-1.5 rounded-xl border border-white/20 text-[10px] font-bold text-slate-700">
-                                            <div className="flex items-center gap-1"><Icon name="Navigation" className="w-3 h-3 text-indigo-600" />{itinerary[activeDay].stats.km} km</div>
-                                            <div className="w-px h-3 bg-slate-400/30"></div>
-                                            <div className="flex items-center gap-1"><Icon name="Clock" className="w-3 h-3 text-indigo-600" />{itinerary[activeDay].stats.time}</div>
-                                        </div>
+                                        <button onClick={() => { setFocusedRoute(null); if (selectedDay !== null && focusedRoute === null) setSelectedDay(null); }} className="p-2 text-slate-300"><Icon name="X" /></button>
                                     </div>
-                                    <h2 className="text-2xl font-black mb-2 tracking-tight leading-tight">{itinerary[activeDay].dayName} : {itinerary[activeDay].title}</h2>
-                                    <p className="text-slate-700 mb-6 text-sm leading-relaxed max-w-3xl font-medium italic opacity-80">{itinerary[activeDay].description}</p>
                                     
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {itinerary[activeDay].activities
-                                            .filter((act) => activeDay === 0 || !act.name.toLowerCase().includes("gîte"))
-                                            .map((act, i) => {
-                                                const originalIndex = itinerary[activeDay].activities.indexOf(act);
-                                                return (
-                                                    <div key={i} className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/40 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-                                                        {act.img && <div className="h-44 w-full overflow-hidden relative"><img src={act.img} alt={act.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /></div>}
-                                                        <div className="p-4">
-                                                            <div className="font-bold text-sm text-slate-900 mb-2 flex items-center gap-2"><span className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-black">{originalIndex + 1}</span>{act.name}</div>
-                                                            <div className="flex items-start gap-1.5 text-[11px] text-slate-600 bg-white/50 p-2.5 rounded-lg border border-white/20 font-mono select-all overflow-hidden text-ellipsis"><Icon name="CornerUpRight" className="w-3 h-3 mt-0.5 text-indigo-500 flex-shrink-0" />{act.addr}</div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })
-                                        }
+                                    <div className="flex gap-4 mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                        <div className="flex-1 text-center"><div className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Route</div><div className="text-sm font-black text-indigo-700">{itinerary[focusedRoute ?? selectedDay].stats.km} km</div></div>
+                                        <div className="w-px bg-slate-200"></div>
+                                        <div className="flex-1 text-center"><div className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Conduite</div><div className="text-sm font-black text-indigo-700">{itinerary[focusedRoute ?? selectedDay].stats.time}</div></div>
                                     </div>
-                                </div>
-                            )}
 
-                            {activeTab === 'optional' && (
-                                <div className="p-5 md:p-6 rounded-3xl bg-amber-50 border border-amber-100 shadow-sm animate-in zoom-in-95 duration-300">
-                                    <h2 className="text-2xl font-black mb-2 tracking-tight text-amber-900 flex items-center gap-2"><Icon name="Lightbulb" className="w-6 h-6" />Visites Alternatives</h2>
-                                    <p className="text-amber-800/80 mb-6 text-sm">Pépites de proximité ou monuments classiques excentrés en cas d'imprévu.</p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {optionalVisits.map((visit, i) => (
-                                            <div key={i} className="bg-white/80 rounded-2xl border border-amber-200 overflow-hidden flex flex-col shadow-sm">
-                                                <div className="h-40 w-full overflow-hidden"><img src={visit.img} alt={visit.name} className="w-full h-full object-cover" /></div>
-                                                <div className="p-4 flex flex-col justify-between h-full">
-                                                    <div><div className="font-bold text-slate-900 text-sm mb-1">{visit.name}</div><p className="text-[11px] text-slate-600 leading-relaxed mb-4">{visit.reason}</p></div>
-                                                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 bg-slate-100 px-2 py-1.5 rounded border border-slate-200 font-mono w-fit max-w-full truncate"><Icon name="Navigation" className="w-3 h-3 text-amber-600" />{visit.addr}</div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'night' && (
-                                <div className="p-5 md:p-6 rounded-3xl bg-indigo-950 border border-indigo-900 shadow-sm text-white animate-in zoom-in-95 duration-300">
-                                    <h2 className="text-2xl font-black mb-2 tracking-tight flex items-center gap-2"><Icon name="Moon" className="w-6 h-6 text-indigo-300" />Magie Nocturne</h2>
-                                    <p className="text-indigo-200 mb-6 text-sm italic">Le Val de Loire s'illumine à la nuit tombée.</p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {nightVisits.map((visit, i) => (
-                                            <div key={i} className="bg-white/10 rounded-2xl border border-white/10 overflow-hidden flex flex-col">
-                                                <div className="h-44 w-full overflow-hidden"><img src={visit.img} alt={visit.name} className="w-full h-full object-cover opacity-80" /></div>
-                                                <div className="p-4">
-                                                    <div className="font-bold text-indigo-100 text-sm mb-1">{visit.name}</div>
-                                                    <p className="text-[11px] text-indigo-200/80 leading-relaxed mb-3">{visit.desc}</p>
-                                                    <div className="text-[10px] font-bold text-indigo-300 flex items-center gap-1.5 bg-indigo-900/50 p-2 rounded-lg"><Icon name="Info" className="w-3 h-3" />{visit.tip}</div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'booking' && (
-                                <div className="p-5 md:p-6 rounded-3xl bg-red-50 border border-red-100 shadow-sm animate-in zoom-in-95 duration-300">
-                                    <h2 className="text-2xl font-black mb-2 tracking-tight text-red-900 flex items-center gap-2"><Icon name="Ticket" className="w-6 h-6" />Guide de Réservation</h2>
-                                    <p className="text-red-800/80 mb-6 text-sm font-medium">Ne perdez pas 1h dans les files d'attente sous le soleil.</p>
-                                    <div className="bg-white/80 p-5 rounded-2xl border border-red-200 mb-4 shadow-sm">
-                                        <div className="flex items-center gap-2 mb-4"><div className="w-3 h-3 rounded-full bg-red-500"></div><h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Priorité Absolue</h3></div>
-                                        <div className="grid grid-cols-1 gap-3 text-xs font-medium">
-                                            <div className="p-4 border border-red-100 rounded-xl bg-red-50/30 flex items-start gap-3">
-                                                <Icon name="AlertCircle" className="w-5 h-5 text-red-600 flex-shrink-0" />
-                                                <div><b>Zoo de la Flèche</b> : Quotas quotidiens stricts, complet vite.</div>
-                                            </div>
-                                            <div className="p-4 border border-red-100 rounded-xl bg-red-50/30 flex items-start gap-3">
-                                                <Icon name="Clock" className="w-5 h-5 text-red-600 flex-shrink-0" />
-                                                <div><b>Château de Chenonceau</b> : Créneau horaire obligatoire pour l'intérieur.</div>
-                                            </div>
+                                    {itinerary[focusedRoute ?? selectedDay].nightEvent && (
+                                        <div className="mb-4 p-3 bg-indigo-950 text-indigo-100 rounded-2xl flex gap-3 items-center border border-indigo-800 shadow-lg">
+                                            <Icon name="Moon" className="text-amber-400 w-5 h-5 shrink-0" />
+                                            <div className="text-[10px] font-bold leading-tight">{itinerary[focusedRoute ?? selectedDay].nightEvent}</div>
                                         </div>
-                                    </div>
-                                    <div className="bg-blue-900 text-white p-4 rounded-2xl text-[11px] leading-tight flex items-center gap-3">
-                                        <Icon name="Smartphone" className="w-8 h-8 text-blue-300 flex-shrink-0" />
-                                        <p><b>Conseil :</b> Capturez vos QR Codes en photo. Le réseau mobile est souvent faible dans les vieux châteaux.</p>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        {itinerary[focusedRoute ?? selectedDay].activities.map((act, i) => {
+                                            const isH = act.name === "La Chapelle-sur-Loire";
+                                            return (
+                                                <div key={i} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-white">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] shadow-sm ${isH ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white'}`}>{isH ? 'H' : i+1}</div>
+                                                        <div className="text-xs font-bold text-slate-800">{act.name}</div>
+                                                    </div>
+                                                    {act.dist && <div className="text-[9px] font-bold text-indigo-600 flex gap-1 items-center bg-white px-2 py-1 rounded shadow-sm"><Icon name="ArrowRight" className="w-2.5 h-2.5" /> {act.dist}</div>}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
-                            )}
-
-                            {/* Assistant IA flottant ou intégré */}
-                            <section className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
-                                <h3 className="font-bold flex items-center gap-2 text-slate-800 mb-4 text-sm"><Icon name="Sparkles" className="w-4 h-4 text-amber-500" />Assistant IA Local</h3>
-                                <div className="flex gap-2">
-                                    <input type="text" value={userQuery} onChange={(e) => setUserQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && askAssistant()} placeholder="Une question ?" className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
-                                    <button onClick={askAssistant} disabled={isLoading} className="bg-indigo-600 text-white p-3 rounded-xl disabled:opacity-50 shadow-md">{isLoading ? <Icon name="Loader2" className="w-5 h-5 animate-spin" /> : <Icon name="Send" className="w-5 h-5" />}</button>
-                                </div>
-                                {aiResponse && <div className="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-xs md:text-sm leading-relaxed text-slate-700 animate-in fade-in"><b>Réponse :</b><br/>{aiResponse}</div>}
-                            </section>
-                        </div>
-
-                        {/* Map Area - Adaptive height on mobile */}
-                        <div className="h-64 md:h-80 lg:h-96 bg-slate-100 relative border-t border-slate-200 overflow-hidden shrink-0 z-10">
-                            <MapContainer activities={activeTab === 'itinerary' ? itinerary[activeDay].activities : (activeTab === 'optional' ? optionalVisits : (activeTab === 'night' ? itinerary[0].activities : [{ name: "La Chapelle", addr: homeAddr, coords: homeCoords }]))} />
-                            <div className="absolute bottom-3 left-3 z-[1000] bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-600 shadow-lg border border-slate-200 flex items-center gap-2 pointer-events-none">
-                                <Icon name="Map" className="w-3.5 h-3.5 text-indigo-600" /> Itinéraire Interactif
                             </div>
                         </div>
-                    </main>
+                    )}
+
+                    {showAssistant && (
+                        <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowAssistant(false)}>
+                            <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+                                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-amber-50 shrink-0">
+                                    <h3 className="font-bold flex items-center gap-2 text-amber-700"><Icon name="Sparkles" /> Guide Local IA</h3>
+                                    <button onClick={() => setShowAssistant(false)} className="p-2"><Icon name="X" /></button>
+                                </div>
+                                <div className="p-6 overflow-y-auto">
+                                    <div className="flex gap-2 mb-4">
+                                        <input type="text" value={userQuery} onChange={e => setUserQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && askAssistant(userQuery)} placeholder="Une question ?" className="flex-1 bg-slate-100 border-none rounded-xl px-4 py-4 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+                                        <button onClick={() => askAssistant(userQuery)} className="bg-amber-500 text-white px-5 rounded-xl shadow-lg active:scale-95">{isLoading ? <Icon name="Loader2" className="animate-spin" /> : <Icon name="Send" />}</button>
+                                    </div>
+                                    {aiResponse && <div className="bg-slate-50 p-4 rounded-2xl text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">{aiResponse}</div>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showBooking && (
+                        <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowBooking(false)}>
+                            <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                                <div className="p-6 bg-red-500 text-white flex items-center justify-between shrink-0">
+                                    <h3 className="font-bold flex items-center gap-2"><Icon name="Ticket" /> Réservations</h3>
+                                    <button onClick={() => setShowBooking(false)} className="p-2"><Icon name="X" /></button>
+                                </div>
+                                <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                                    <div className="p-4 bg-red-50 border border-red-100 rounded-2xl">
+                                        <div className="font-bold text-red-600 mb-1 uppercase text-[10px]">🔴 Indispensable</div>
+                                        <p className="text-sm">Chenonceau (Nuit et Jour) : Réservation horaire obligatoire. Pas d'entrée sans créneau.</p>
+                                    </div>
+                                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+                                        <div className="font-bold text-amber-600 mb-1 uppercase text-[10px]">🟡 Conseillé</div>
+                                        <p className="text-sm">Spectacle Son et Lumière de Blois : Réservez en ligne pour garantir votre place.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showOptional && (
+                        <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowOptional(false)}>
+                            <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-indigo-50 shrink-0">
+                                    <h3 className="font-bold flex items-center gap-2 text-indigo-700"><Icon name="Lightbulb" /> Plan B : Alternatives</h3>
+                                    <button onClick={() => setShowOptional(false)} className="p-2"><Icon name="X" /></button>
+                                </div>
+                                <div className="p-4 max-h-[70vh] overflow-y-auto custom-scrollbar space-y-3">
+                                    {optionalVisits.map((visit, i) => (
+                                        <div key={i} className="flex gap-4 p-3 rounded-2xl border border-slate-100 cursor-pointer active:bg-slate-50" onClick={() => { leafletMap.current.setView(visit.coords, 13); setShowOptional(false); }}>
+                                            <img src={visit.img} className="w-20 h-20 rounded-xl object-cover shadow-sm shrink-0" />
+                                            <div className="flex-1">
+                                                <div className="font-bold text-sm text-slate-800">{visit.name}</div>
+                                                <p className="text-[10px] text-slate-500 leading-tight mt-1">{visit.reason}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
