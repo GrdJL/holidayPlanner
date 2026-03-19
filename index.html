@@ -36,8 +36,8 @@
         .leaflet-popup-content-wrapper { border-radius: 16px; padding: 0; overflow: hidden; }
         .leaflet-popup-content { margin: 0; width: 240px !important; }
         
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 0px; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -105,9 +105,9 @@
                     { name: "Château de Saumur", addr: "Saumur", coords: [47.256, -0.072], dist: "18km", dur: "25min", img: "https://www.ot-saumur.fr/wp-content/uploads/apidae/8db026651014c195df8070f2533b7642-35937807-1600x900.jpg" },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "15km", dur: "20min" }
                 ]},
-                { id: 3, dayName: "Mardi", color: "#8b5cf6", title: "Abbaye & Forteresse", stats: { km: 55, time: "1h10" }, activities: [
+                { id: 3, dayName: "Mardi", color: "#8b5cf6", title: "Fontevraud", stats: { km: 110, time: "1h50" }, activities: [
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
-                    { name: "Abbaye Fontevraud", addr: "Fontevraud", coords: [47.181, 0.050], dist: "18km", dur: "20min", img: "https://www.fontevraud.fr/wp-content/uploads/2024/08/2021-05-21-%C2%A9Leonard-de-serres-20-1920x1281.jpg" },
+                    { name: "Abbaye Fontevraud", addr: "Fontevraud", coords: [47.181, 0.050], dist: "18km", dur: "20min", img: "https://www.360images.fr/images/stories/645/fontevraud_salon2.jpg" },
                     { name: "Forteresse Chinon", addr: "Chinon", coords: [47.167, 0.236], dist: "15km", dur: "20min", img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Chinon_-_Ch%C3%A2teau_vu_depuis_la_plage.jpg" },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "20km", dur: "25min" }
                 ]},
@@ -134,7 +134,6 @@
 
             const optionalVisits = [
                 { name: "Cité Royale de Loches", addr: "Loches", coords: [47.126, 0.997], dist: "65km", dur: "1h00", reason: "Donjon massif et cité médiévale puissante.", img: "https://citeroyaleloches.fr/wp-content/uploads/2018/05/decouvrez_histoire.jpg" },
-                { name: "Forteresse Chinon", addr: "Chinon", coords: [47.167, 0.236], dist: "20km", dur: "25min", reason: "Château vu depuis la plage.", img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Chinon_-_Ch%C3%A2teau_vu_depuis_la_plage.jpg" },
                 { name: "Le Château du Rivau", addr: "Lémeré", coords: [47.104, 0.323], dist: "25km", dur: "30min", reason: "Château féerique et jardins extraordinaires.", img: "https://upload.wikimedia.org/wikipedia/commons/7/78/Vue_de_la_fa%C3%A7ade_du_ch%C3%A2teau_du_Rivau_depuis_le_conservatoire_des_l%C3%A9gumes.jpg" },
                 { name: "Caves de Vouvray", addr: "Vouvray", coords: [47.411, 0.796], dist: "55km", dur: "45min", reason: "Fraîcheur des caves et dégustation.", img: "https://static.neopse.com/medias/p/2337/site/34/dc/ba/34dcbab7f5906624567ed2d7c723fea53e393950.jpg?v=v1" },
                 { name: "Maison de la Magie", addr: "Blois", coords: [47.5865, 1.331], dist: "85km", dur: "1h05", reason: "Musée interactif face au château de Blois.", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" }
@@ -179,21 +178,25 @@
                         const isHome = act.name === "La Chapelle-sur-Loire";
                         const icon = L.divIcon({
                             className: isHome ? 'home-marker' : 'number-marker',
-                            html: isHome ? 'H' : i + 1,
+                            html: isHome ? 'G' : i + 1,
                             iconSize: isHome ? [32, 32] : [28, 28]
                         });
+
+                        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.addr + ' ' + act.name)}`;
+
                         const popupHtml = `
                             <div class="flex flex-col">
                                 ${act.img ? `<img src="${act.img}" class="w-full h-24 object-cover">` : ''}
                                 <div class="p-3">
                                     <div class="font-bold text-sm mb-1">${act.name}</div>
-                                    <div class="text-[10px] text-slate-500 mb-2">${act.addr}</div>
+                                    <a href="${googleMapsUrl}" target="_blank" class="flex items-center gap-1.5 text-[10px] text-blue-600 font-medium hover:underline">
+                                        <i data-lucide="navigation-2" style="width:10px;height:10px"></i> ${act.addr}
+                                    </a>
                                     ${act.dist ? `
-                                    <div class="flex items-center gap-2 mt-1 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+                                    <div class="flex items-center gap-2 mt-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
                                         <div class="flex items-center gap-1 text-[10px] font-bold text-indigo-700"><i data-lucide="navigation" style="width:10px;height:10px"></i> ${act.dist}</div>
                                         <div class="flex items-center gap-1 text-[10px] font-bold text-indigo-700"><i data-lucide="clock" style="width:10px;height:10px"></i> ${act.dur}</div>
                                     </div>
-                                    <div class="mt-1 text-[8px] text-slate-400 italic">Depuis l'étape précédente</div>
                                     ` : ''}
                                 </div>
                             </div>
@@ -225,33 +228,37 @@
                 <div className="relative w-screen h-screen overflow-hidden bg-slate-100">
                     <div id="map"></div>
 
-                    <div className="absolute top-4 left-0 right-0 z-[1000] flex gap-2 px-4 overflow-x-auto pb-4 no-scrollbar">
+                    {/* Day Selector : Disposition Verticale Optimisée Smartphone */}
+                    <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-1.5 h-[calc(100vh-120px)] overflow-y-auto no-scrollbar pointer-events-none pb-12">
                         <button 
                             onClick={() => { setSelectedDay(null); setFocusedRoute(null); }}
-                            className={`px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap shadow-lg transition-all ${selectedDay === null ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600'}`}
+                            className={`pointer-events-auto px-2 py-2 rounded-xl text-[10px] font-black shadow-xl border-2 transition-all min-w-[70px] ${selectedDay === null ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-white text-slate-600 border-white hover:bg-slate-50'}`}
                         >
-                            Tout le séjour
+                            SEMAINE
                         </button>
                         {itinerary.map((day) => (
                             <button 
                                 key={day.id} 
                                 onClick={() => { setSelectedDay(day.id); setFocusedRoute(day.id); }} 
-                                className={`px-5 py-2.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 transition-all ${selectedDay === day.id ? 'bg-slate-800 text-white ring-2 ring-indigo-500' : 'bg-white text-slate-600'}`}
+                                className={`pointer-events-auto px-2 py-2 rounded-xl text-[10px] font-bold shadow-xl border-2 transition-all flex flex-col items-center justify-center min-w-[70px] ${selectedDay === day.id ? 'bg-slate-800 text-white border-indigo-500' : 'bg-white text-slate-600 border-white'}`}
                             >
-                                <div className="w-2 h-2 rounded-full" style={{ background: day.color }}></div>{day.dayName}
+                                <div className="w-2 h-2 rounded-full mb-0.5" style={{ background: day.color }}></div>
+                                {day.dayName.toUpperCase()}
                             </button>
                         ))}
                     </div>
 
-                    <div className="absolute right-4 top-20 z-[1000] flex flex-col gap-3">
-                        <button onClick={() => setShowAssistant(true)} className="p-4 bg-white rounded-2xl shadow-xl text-amber-500 active:scale-95 transition-transform"><Icon name="Sparkles" className="w-6 h-6" /></button>
-                        <button onClick={() => setShowBooking(true)} className="p-4 bg-white rounded-2xl shadow-xl text-red-500 active:scale-95 transition-transform"><Icon name="Ticket" className="w-6 h-6" /></button>
-                        <button onClick={() => setShowOptional(true)} className="p-4 bg-white rounded-2xl shadow-xl text-indigo-500 active:scale-95 transition-transform"><Icon name="Lightbulb" className="w-6 h-6" /></button>
+                    {/* Right Tools */}
+                    <div className="absolute right-4 top-4 z-[1000] flex flex-col gap-3">
+                        <button onClick={() => setShowAssistant(true)} className="p-4 bg-white rounded-2xl shadow-xl text-amber-500 border border-slate-100"><Icon name="Sparkles" className="w-6 h-6" /></button>
+                        <button onClick={() => setShowBooking(true)} className="p-4 bg-white rounded-2xl shadow-xl text-red-500 border border-slate-100"><Icon name="Ticket" className="w-6 h-6" /></button>
+                        <button onClick={() => setShowOptional(true)} className="p-4 bg-white rounded-2xl shadow-xl text-indigo-500 border border-slate-100"><Icon name="Lightbulb" className="w-6 h-6" /></button>
                     </div>
 
+                    {/* Bottom Info Panel */}
                     {(focusedRoute !== null || selectedDay !== null) && (
                         <div className="absolute bottom-4 left-4 right-4 z-[1000] md:max-w-sm md:left-auto md:right-6 animate-in slide-in-from-bottom-4 duration-300">
-                            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[45vh] flex flex-col">
+                            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[40vh] flex flex-col">
                                 <div className="p-5 overflow-y-auto custom-scrollbar">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-3">
@@ -270,21 +277,17 @@
                                         <div className="flex-1 text-center"><div className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Conduite</div><div className="text-sm font-black text-indigo-700">{itinerary[focusedRoute ?? selectedDay].stats.time}</div></div>
                                     </div>
 
-                                    {itinerary[focusedRoute ?? selectedDay].nightEvent && (
-                                        <div className="mb-4 p-3 bg-indigo-950 text-indigo-100 rounded-2xl flex gap-3 items-center border border-indigo-800 shadow-lg">
-                                            <Icon name="Moon" className="text-amber-400 w-5 h-5 shrink-0" />
-                                            <div className="text-[10px] font-bold leading-tight">{itinerary[focusedRoute ?? selectedDay].nightEvent}</div>
-                                        </div>
-                                    )}
-
                                     <div className="space-y-2">
                                         {itinerary[focusedRoute ?? selectedDay].activities.map((act, i) => {
                                             const isH = act.name === "La Chapelle-sur-Loire";
+                                            const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.addr + ' ' + act.name)}`;
                                             return (
                                                 <div key={i} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-white">
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] shadow-sm ${isH ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white'}`}>{isH ? 'H' : i+1}</div>
-                                                        <div className="text-xs font-bold text-slate-800">{act.name}</div>
+                                                        <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] shadow-sm ${isH ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white'}`}>{isH ? 'G' : i+1}</div>
+                                                        <a href={googleMapsUrl} target="_blank" className="text-xs font-bold text-slate-800 hover:text-blue-600 flex items-center gap-1">
+                                                            {act.name} <Icon name="ExternalLink" className="w-2.5 h-2.5 opacity-50" />
+                                                        </a>
                                                     </div>
                                                     {act.dist && <div className="text-[9px] font-bold text-indigo-600 flex gap-1 items-center bg-white px-2 py-1 rounded shadow-sm"><Icon name="ArrowRight" className="w-2.5 h-2.5" /> {act.dist}</div>}
                                                 </div>
@@ -296,6 +299,7 @@
                         </div>
                     )}
 
+                    {/* Modals : Assistant / Booking / Plan B */}
                     {showAssistant && (
                         <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowAssistant(false)}>
                             <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
