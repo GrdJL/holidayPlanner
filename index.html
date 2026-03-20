@@ -133,12 +133,14 @@
             ];
 
             const optionalVisits = [
+                { name: "Maison de la Magie", addr: "41000 Blois", coords: [47.5865, 1.331], dist: "85km", dur: "1h05", reason: "Musée interactif face au château de Blois.", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" },
+                { name: "Canoë-Kayak sur le Cher", addr: "37150 Civray-de-Touraine", coords: [47.329, 1.050], dist: "60km", dur: "50min", reason: "Passage magique sous les arches de Chenonceau.", img: "https://www.chenonceau.com/wp-content/uploads/2020/06/chenonceau-vue-du-cher-canoe.jpg" },
+                { name: "Bléré Plage", addr: "37150 Bléré", coords: [47.329, 0.990], dist: "55km", dur: "45min", reason: "Baignade surveillée dans le Cher et détente.", img: "https://www.blere-valdecher.fr/sites/default/files/styles/image_en_avant_large/public/2021-07/Plage_Blere_Cher.jpg" },
                 { name: "Bioparc de Doué-la-Fontaine", addr: "49700 Doué-la-Fontaine", coords: [47.191, -0.297], dist: "35km", dur: "35min", reason: "Le zoo le plus proche. Magnifique cadre troglodytique.", img: "https://a2x2y5u6.delivery.rocketcdn.me/wp-content/uploads/2020/07/Girafe_Bioparc-Joffrion-Moy-690x400.jpg" },
                 { name: "Grand Aquarium de Touraine", addr: "37400 Lussault-sur-Loire", coords: [47.387, 0.916], dist: "55km", dur: "45min", reason: "L'aquarium le plus proche, idéal par temps de pluie.", img: "https://media-cdn.tripadvisor.com/media/photo-s/0f/10/af/ea/le-tunnel-aux-requins.jpg" },
                 { name: "Cité Royale de Loches", addr: "Loches", coords: [47.126, 0.997], dist: "65km", dur: "1h00", reason: "Donjon massif et cité médiévale puissante.", img: "https://citeroyaleloches.fr/wp-content/uploads/2018/05/decouvrez_histoire.jpg" },
                 { name: "Le Château du Rivau", addr: "Lémeré", coords: [47.104, 0.323], dist: "25km", dur: "30min", reason: "Château féerique et jardins extraordinaires.", img: "https://upload.wikimedia.org/wikipedia/commons/7/78/Vue_de_la_fa%C3%A7ade_du_ch%C3%A2teau_du_Rivau_depuis_le_conservatoire_des_l%C3%A9gumes.jpg" },
-                { name: "Caves de Vouvray", addr: "Vouvray", coords: [47.411, 0.796], dist: "55km", dur: "45min", reason: "Fraîcheur des caves et dégustation.", img: "https://static.neopse.com/medias/p/2337/site/34/dc/ba/34dcbab7f5906624567ed2d7c723fea53e393950.jpg?v=v1" },
-                { name: "Maison de la Magie", addr: "Blois", coords: [47.5865, 1.331], dist: "85km", dur: "1h05", reason: "Musée interactif face au château de Blois.", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" }
+                { name: "Caves de Vouvray", addr: "Vouvray", coords: [47.411, 0.796], dist: "55km", dur: "45min", reason: "Fraîcheur des caves et dégustation.", img: "https://static.neopse.com/medias/p/2337/site/34/dc/ba/34dcbab7f5906624567ed2d7c723fea53e393950.jpg?v=v1" }
             ];
 
             useEffect(() => {
@@ -322,7 +324,7 @@
 
                     {showBooking && (
                         <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowBooking(false)}>
-                            <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                                 <div className="p-6 bg-red-500 text-white flex items-center justify-between shrink-0">
                                     <h3 className="font-bold flex items-center gap-2"><Icon name="Ticket" /> Réservations</h3>
                                     <button onClick={() => setShowBooking(false)} className="p-2"><Icon name="X" /></button>
@@ -343,7 +345,7 @@
 
                     {showOptional && (
                         <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowOptional(false)}>
-                            <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                                 <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-indigo-50 shrink-0">
                                     <h3 className="font-bold flex items-center gap-2 text-indigo-700"><Icon name="Lightbulb" /> Plan B : Alternatives</h3>
                                     <button onClick={() => setShowOptional(false)} className="p-2"><Icon name="X" /></button>
