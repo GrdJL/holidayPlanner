@@ -32,6 +32,11 @@
             border-radius: 50%; color: white; font-weight: 800; text-align: center;
             line-height: 28px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
+        .optional-marker {
+            width: 26px; height: 26px; background: #f59e0b; border: 2px solid white;
+            border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
         
         .leaflet-popup-content-wrapper { border-radius: 16px; padding: 0; overflow: hidden; }
         .leaflet-popup-content { margin: 0; width: 240px !important; }
@@ -99,32 +104,32 @@
                     { name: "Azay-le-Rideau", addr: "Azay-le-Rideau", coords: [47.259, 0.465], dist: "10km", dur: "15min", img: "https://www.jardins-de-france.com/sites/default/files/public/styles/visuel-fiche-jardin/public/06112020-lrdrones-azay-le-rideau-1.jpg?itok=QFtdAQPp" },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "20km", dur: "25min" }
                 ], nightEvent: "Les Nocturnes d'Azay : Déambulation lumineuse dans le parc." },
-                { id: 2, dayName: "Lundi", color: "#f97316", title: "Terroir & Saumur", stats: { km: 75, time: "1h30" }, activities: [
+                { id: 2, dayName: "Lundi", color: "#f97316", title: "Saumur Majestueux", stats: { km: 35, time: "45min" }, activities: [
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
-                    { name: "Rochemenier", addr: "Village Troglodyte", coords: [47.234, -0.297], dist: "40km", dur: "45min", img: "https://louresse-rochemenier.fr/wp-content/uploads/2022/03/IMG_20210529_172450-scaled.jpg" },
-                    { name: "Château de Saumur", addr: "Saumur", coords: [47.256, -0.072], dist: "18km", dur: "25min", img: "https://www.ot-saumur.fr/wp-content/uploads/apidae/8db026651014c195df8070f2533b7642-35937807-1600x900.jpg" },
+                    { name: "Château de Saumur", addr: "Saumur", coords: [47.256, -0.072], dist: "18km", dur: "20min", img: "https://www.ot-saumur.fr/wp-content/uploads/apidae/8db026651014c195df8070f2533b7642-35937807-1600x900.jpg" },
+                    { name: "Ville de Saumur", addr: "Saumur Centre", coords: [47.259, -0.078], dist: "2km", dur: "5min", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Saumur_Hotel_de_Ville.jpg/640px-Saumur_Hotel_de_Ville.jpg" },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "15km", dur: "20min" }
-                ]},
-                { id: 3, dayName: "Mardi", color: "#8b5cf6", title: "Fontevraud", stats: { km: 110, time: "1h50" }, activities: [
+                ], description: "Journée détente à Saumur." },
+                { id: 3, dayName: "Mardi", color: "#8b5cf6", title: "Patrimoine & Villages", stats: { km: 45, time: "55min" }, activities: [
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
                     { name: "Abbaye Fontevraud", addr: "Fontevraud", coords: [47.181, 0.050], dist: "18km", dur: "20min", img: "https://www.360images.fr/images/stories/645/fontevraud_salon2.jpg" },
-                    { name: "Forteresse Chinon", addr: "Chinon", coords: [47.167, 0.236], dist: "15km", dur: "20min", img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Chinon_-_Ch%C3%A2teau_vu_depuis_la_plage.jpg" },
+                    { name: "Candes-Saint-Martin", addr: "Candes-Saint-Martin", coords: [47.211, 0.073], dist: "5km", dur: "10min", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Panorama_Candes-Saint-Martin.jpg/640px-Panorama_Candes-Saint-Martin.jpg" },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "20km", dur: "25min" }
-                ]},
+                ], description: "Focus sur l'Abbaye Royale et Candes." },
                 { id: 4, dayName: "Mercredi", color: "#ec4899", title: "Chenonceau Nuit", stats: { km: 125, time: "2h00" }, activities: [
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
                     { name: "Chenonceau", addr: "Chenonceaux", coords: [47.325, 1.070], dist: "65km", dur: "55min", img: "https://www.valdeloire-france.com/app/uploads/2023/05/chenonceau-0772-credit-lezbroz-teddy-verneuil-1024x682.webp" },
                     { name: "Le Clos Lucé", addr: "Amboise", coords: [47.410, 0.992], dist: "20km", dur: "25min", img: "https://woody.cloudly.space/app/uploads/adt-touraine/2024/11/thumbs/Chateau_du_Clos_Luce_Amboise_Credit_ADT_Touraine-Loic_Lagarde_2030_03-1-1920x960-crop-1732285009.webp" },
                     { name: "Mini-Châteaux", addr: "Amboise", coords: [47.399, 1.001], dist: "5km", dur: "10min", img: "https://cloudfront-eu-central-1.images.arcpublishing.com/leparisien/T5SN6DXJORHABDZ7METFCQ6RMY.jpg" },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "52km", dur: "50min" }
-                ], nightEvent: "Promenades Nocturnes de Chenonceau : Jardins en musique (Dès 21h30)." },
-                { id: 5, dayName: "Jeudi", color: "#06b6d4", title: "Blois & Spectacle", stats: { km: 195, time: "2h45" }, activities: [
+                ], nightEvent: "Promenades Nocturnes de Chenonceau : Jardins en musique." },
+                { id: 5, dayName: "Jeudi", color: "#06b6d4", title: "Chambord & Blois", stats: { km: 195, time: "2h45" }, activities: [
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
                     { name: "Chambord", addr: "Chambord", coords: [47.616, 1.517], dist: "95km", dur: "1h15", img: "https://media.ouest-france.fr/v1/pictures/MjAyNTA5OTc1NmQ2NmRhMzkwYWE0OWU4ZGNmMTZlNjIwMGRhYzM?width=1260&height=708&focuspoint=50%2C25&cropresize=1&client_id=bpeditorial&sign=ec9a9ae65e69d724f02ae141adb68c1e17993b805a4c9e97bcea65f6e5417622" },
-                    { name: "Château de Blois", addr: "Blois", coords: [47.586, 1.330], dist: "15km", dur: "20min", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" },
+                    { name: "Blois (Vieux Quartiers)", addr: "Blois Centre", coords: [47.586, 1.330], dist: "15km", dur: "20min", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Blois_vielle_ville.jpg/640px-Blois_vielle_ville.jpg" },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "85km", dur: "1h05" }
-                ], nightEvent: "Son et Lumière de Blois : Spectacle 360° dans la cour à 22h." },
-                { id: 6, dayName: "Vendredi", color: "#6366f1", title: "Villandry", stats: { km: 70, time: "1h35" }, activities: [
+                ], description: "Journée à Chambord et dîner typique à Blois." },
+                { id: 6, dayName: "Vendredi", color: "#6366f1", title: "Villandry & Donjon", stats: { km: 70, time: "1h35" }, activities: [
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
                     { name: "Villandry", addr: "Villandry", coords: [47.340, 0.512], dist: "30km", dur: "30min", img: "https://www.chateauvillandry.fr/wp-content/uploads/2022/01/chateauvillandry-jardins-amour-bougie-2018-%C2%A9-f-paillet.jpg" },
                     { name: "Montbazon", addr: "Montbazon", coords: [47.286, 0.713], dist: "20km", dur: "25min", img: "https://static.wixstatic.com/media/1bf685_094f2ea196a94b7498be4c7cbed10925~mv2.jpg/v1/fill/w_600,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/1bf685_094f2ea196a94b7498be4c7cbed10925~mv2.jpg" },
@@ -133,14 +138,13 @@
             ];
 
             const optionalVisits = [
-                { name: "Le Château du Rivau", addr: "Lémeré", coords: [47.104, 0.323], dist: "25km", dur: "30min", reason: "Château féerique et jardins extraordinaires.", img: "https://upload.wikimedia.org/wikipedia/commons/7/78/Vue_de_la_fa%C3%A7ade_du_ch%C3%A2teau_du_Rivau_depuis_le_conservatoire_des_l%C3%A9gumes.jpg" },
-                { name: "Maison de la Magie", addr: "41000 Blois", coords: [47.5865, 1.331], dist: "85km", dur: "1h05", reason: "Musée interactif face au château de Blois.", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" },
+                { name: "Le Château du Rivau", addr: "Lémeré", coords: [47.104, 0.323], dist: "25km", dur: "30min", reason: "Jardins féeriques et sculptures géantes.", img: "https://upload.wikimedia.org/wikipedia/commons/7/78/Vue_de_la_fa%C3%A7ade_du_ch%C3%A2teau_du_Rivau_depuis_le_conservatoire_des_l%C3%A9gumes.jpg" },
+                { name: "Forteresse de Chinon", addr: "Chinon", coords: [47.167, 0.236], dist: "20km", dur: "25min", reason: "Forteresse médiévale majeure dominant la Vienne.", img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Chinon_-_Ch%C3%A2teau_vu_depuis_la_plage.jpg" },
+                { name: "Village Troglodyte", addr: "Rochemenier", coords: [47.234, -0.297], dist: "40km", dur: "45min", reason: "Site troglodyte le plus complet de France.", img: "https://louresse-rochemenier.fr/wp-content/uploads/2022/03/IMG_20210529_172450-scaled.jpg" },
+                { name: "Maison de la Magie", addr: "41000 Blois", coords: [47.5865, 1.331], dist: "85km", dur: "1h05", reason: "Spectacles interactifs face au château de Blois.", img: "https://www.sncf-connect.com/assets/styles/ratio_2_1_max_width_961/public/media/2021-05/chateau-blois.jpg?h=1f885bf8&itok=djGS3K7W" },
                 { name: "Canoë-Kayak sur le Cher", addr: "37150 Civray-de-Touraine", coords: [47.329, 1.050], dist: "60km", dur: "50min", reason: "Passage magique sous les arches de Chenonceau.", img: "https://cdn.sanity.io/images/j84fdg6o/productionv2/e10e2ebb0ce28fdb55f398a64691feb615038fd5-2560x1492.jpg" },
-                { name: "Bléré Plage", addr: "37150 Bléré", coords: [47.329, 0.990], dist: "55km", dur: "45min", reason: "Baignade surveillée dans le Cher et détente.", img: "https://images.lanouvellerepublique.fr/image/upload/t_1020w/f_auto/64a9b2f239064f4f148b47e6.jpg" },
-                { name: "Bioparc de Doué-la-Fontaine", addr: "49700 Doué-la-Fontaine", coords: [47.191, -0.297], dist: "35km", dur: "35min", reason: "Le zoo le plus proche. Magnifique cadre troglodytique.", img: "https://a2x2y5u6.delivery.rocketcdn.me/wp-content/uploads/2020/07/Girafe_Bioparc-Joffrion-Moy-690x400.jpg" },
-                { name: "Grand Aquarium de Touraine", addr: "37400 Lussault-sur-Loire", coords: [47.387, 0.916], dist: "55km", dur: "45min", reason: "L'aquarium le plus proche, idéal par temps de pluie.", img: "https://media-cdn.tripadvisor.com/media/photo-s/0f/10/af/ea/le-tunnel-aux-requins.jpg" },
-                { name: "Cité Royale de Loches", addr: "Loches", coords: [47.126, 0.997], dist: "65km", dur: "1h00", reason: "Donjon massif et cité médiévale puissante.", img: "https://citeroyaleloches.fr/wp-content/uploads/2018/05/decouvrez_histoire.jpg" },
-                { name: "Caves de Vouvray", addr: "Vouvray", coords: [47.411, 0.796], dist: "55km", dur: "45min", reason: "Fraîcheur des caves et dégustation.", img: "https://static.neopse.com/medias/p/2337/site/34/dc/ba/34dcbab7f5906624567ed2d7c723fea53e393950.jpg?v=v1" }
+                { name: "Bléré Plage", addr: "37150 Bléré", coords: [47.329, 0.990], dist: "55km", dur: "45min", reason: "Détente et baignade surveillée dans le Cher.", img: "https://images.lanouvellerepublique.fr/image/upload/t_1020w/f_auto/64a9b2f239064f4f148b47e6.jpg" },
+                { name: "Bioparc de Doué", addr: "49700 Doué-la-Fontaine", coords: [47.191, -0.297], dist: "35km", dur: "35min", reason: "Zoo troglodytique unique au monde.", img: "https://a2x2y5u6.delivery.rocketcdn.me/wp-content/uploads/2020/07/Girafe_Bioparc-Joffrion-Moy-690x400.jpg" }
             ];
 
             useEffect(() => {
@@ -151,14 +155,17 @@
                     }).addTo(leafletMap.current);
                     layersRef.current.markers = L.layerGroup().addTo(leafletMap.current);
                     layersRef.current.routes = L.layerGroup().addTo(leafletMap.current);
+                    layersRef.current.optionalMarkers = L.layerGroup().addTo(leafletMap.current);
                 }
                 updateMapDisplay();
             }, [selectedDay, focusedRoute]);
 
             const updateMapDisplay = () => {
-                const { markers, routes } = layersRef.current;
+                const { markers, routes, optionalMarkers } = layersRef.current;
                 markers.clearLayers();
                 routes.clearLayers();
+                optionalMarkers.clearLayers();
+
                 const daysToDisplay = selectedDay !== null ? [itinerary[selectedDay]] : itinerary;
                 const allPoints = [];
 
@@ -185,9 +192,7 @@
                             html: isHome ? 'G' : i + 1,
                             iconSize: isHome ? [32, 32] : [28, 28]
                         });
-
                         const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.addr + ' ' + act.name)}`;
-
                         const popupHtml = `
                             <div class="flex flex-col">
                                 ${act.img ? `<img src="${act.img}" class="w-full h-24 object-cover">` : ''}
@@ -196,18 +201,38 @@
                                     <a href="${googleMapsUrl}" target="_blank" class="flex items-center gap-1.5 text-[10px] text-blue-600 font-medium hover:underline">
                                         <i data-lucide="navigation-2" style="width:10px;height:10px"></i> GPS
                                     </a>
-                                    ${act.dist ? `
-                                    <div class="flex items-center gap-2 mt-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
-                                        <div class="flex items-center gap-1 text-[10px] font-bold text-indigo-700"><i data-lucide="navigation" style="width:10px;height:10px"></i> ${act.dist}</div>
-                                        <div class="flex items-center gap-1 text-[10px] font-bold text-indigo-700"><i data-lucide="clock" style="width:10px;height:10px"></i> ${act.dur}</div>
-                                    </div>
-                                    ` : ''}
                                 </div>
                             </div>
                         `;
                         const marker = L.marker(act.coords, { icon }).addTo(markers).bindPopup(popupHtml);
                         marker.on('popupopen', () => lucide.createIcons());
                     });
+                });
+
+                optionalVisits.forEach(visit => {
+                    const icon = L.divIcon({
+                        className: 'optional-marker',
+                        html: '<i data-lucide="lightbulb" style="width:14px;height:14px"></i>',
+                        iconSize: [26, 26]
+                    });
+                    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(visit.addr + ' ' + visit.name)}`;
+                    const popupHtml = `
+                        <div class="flex flex-col">
+                            <img src="${visit.img}" class="w-full h-24 object-cover">
+                            <div class="p-3">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <span class="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-[8px] font-black uppercase">Plan B</span>
+                                    <div class="font-bold text-sm">${visit.name}</div>
+                                </div>
+                                <div class="text-[10px] text-slate-500 italic mb-2 leading-tight">${visit.reason}</div>
+                                <a href="${googleMapsUrl}" target="_blank" class="flex items-center gap-1.5 text-[10px] text-blue-600 font-medium hover:underline">
+                                    <i data-lucide="navigation-2" style="width:10px;height:10px"></i> GPS
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    const marker = L.marker(visit.coords, { icon }).addTo(optionalMarkers).bindPopup(popupHtml);
+                    marker.on('popupopen', () => lucide.createIcons());
                 });
 
                 if (allPoints.length > 0) {
@@ -217,31 +242,64 @@
 
             const askAssistant = async (query) => {
                 if (!query.trim()) return;
-                setIsLoading(true); setAiResponse("");
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: query }] }] })
-                    });
-                    const data = await response.json();
-                    setAiResponse(data.candidates?.[0]?.content?.parts?.[0]?.text || "Désolé.");
-                } catch (err) { setAiResponse("Erreur guide."); } finally { setIsLoading(false); }
+                setIsLoading(true);
+                setAiResponse("");
+
+                const systemPrompt = "Tu es un guide expert du Val de Loire. Réponds de manière concise, chaleureuse et passionnante. Aide l'utilisateur à planifier son séjour à La Chapelle-sur-Loire et ses visites aux châteaux alentours.";
+                const payload = {
+                    contents: [{ parts: [{ text: query }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const callWithRetry = async (attempt = 0) => {
+                    try {
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) throw new Error('API request failed');
+                        
+                        const result = await response.json();
+                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (text) {
+                            setAiResponse(text);
+                        } else {
+                            setAiResponse("Désolé, je n'ai pas pu générer de réponse.");
+                        }
+                    } catch (error) {
+                        if (attempt < 4) {
+                            const delay = Math.pow(2, attempt) * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            return callWithRetry(attempt + 1);
+                        }
+                        setAiResponse("L'assistant est temporairement indisponible. Veuillez réessayer plus tard.");
+                    } finally {
+                        if (attempt === 0 || attempt === 4) setIsLoading(false);
+                    }
+                };
+
+                await callWithRetry();
             };
 
             const selectedItinerary = useMemo(() => {
+                if (selectedDay === null && focusedRoute === null) return null;
                 return itinerary[focusedRoute ?? selectedDay];
             }, [focusedRoute, selectedDay]);
 
             const galleryActivities = useMemo(() => {
                 if (!selectedItinerary) return [];
-                return selectedItinerary.activities.filter(act => act.name !== "La Chapelle-sur-Loire" && act.name !== "Départ La Rochelle");
+                return selectedItinerary.activities.filter(act => 
+                    act.name !== "La Chapelle-sur-Loire" && 
+                    act.name !== "Départ La Rochelle"
+                );
             }, [selectedItinerary]);
 
             return (
                 <div className="relative w-screen h-screen overflow-hidden bg-slate-100">
                     <div id="map"></div>
 
-                    {/* Day Selector */}
                     <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-1.5 h-[calc(100vh-120px)] overflow-y-auto no-scrollbar pointer-events-none pb-12">
                         <button 
                             onClick={() => { setSelectedDay(null); setFocusedRoute(null); }}
@@ -261,17 +319,15 @@
                         ))}
                     </div>
 
-                    {/* Right Tools */}
                     <div className="absolute right-4 top-4 z-[1000] flex flex-col gap-3">
                         <button onClick={() => setShowAssistant(true)} className="p-4 bg-white rounded-2xl shadow-xl text-amber-500 border border-slate-100"><Icon name="Sparkles" className="w-6 h-6" /></button>
                         <button onClick={() => setShowBooking(true)} className="p-4 bg-white rounded-2xl shadow-xl text-red-500 border border-slate-100"><Icon name="Ticket" className="w-6 h-6" /></button>
                         <button onClick={() => setShowOptional(true)} className="p-4 bg-white rounded-2xl shadow-xl text-indigo-500 border border-slate-100"><Icon name="Lightbulb" className="w-6 h-6" /></button>
                     </div>
 
-                    {/* Bottom Info Panel */}
                     {selectedItinerary && (
                         <div className="absolute bottom-4 left-4 right-4 z-[1000] md:max-w-sm md:left-auto md:right-6 animate-in slide-in-from-bottom-4 duration-300">
-                            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[60vh] flex flex-col">
+                            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[65vh] flex flex-col">
                                 <div className="p-5 overflow-y-auto custom-scrollbar">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-3">
@@ -284,14 +340,13 @@
                                         <button onClick={() => { setFocusedRoute(null); if (selectedDay !== null && focusedRoute === null) setSelectedDay(null); }} className="p-2 text-slate-300"><Icon name="X" /></button>
                                     </div>
 
-                                    {/* Galerie de Vignettes (Excluant le gîte) */}
                                     {galleryActivities.length > 0 && (
                                         <div className="mb-6">
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Aperçu des étapes</div>
+                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Aperçu des visites</div>
                                             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                                                 {galleryActivities.map((act, i) => (
-                                                    <div key={i} className="flex-shrink-0 w-32 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
-                                                        <div className="h-20 w-full bg-slate-200">
+                                                    <div key={i} className="flex-shrink-0 w-36 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                                                        <div className="h-24 w-full bg-slate-200">
                                                             {act.img ? (
                                                                 <img src={act.img} alt={act.name} className="w-full h-full object-cover" />
                                                             ) : (
@@ -337,7 +392,6 @@
                         </div>
                     )}
 
-                    {/* Modals */}
                     {showAssistant && (
                         <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowAssistant(false)}>
                             <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
