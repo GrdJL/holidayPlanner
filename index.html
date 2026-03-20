@@ -91,7 +91,7 @@
                 { id: 0, dayName: "Samedi", color: "#10b981", title: "Le Voyage", stats: { km: 205, time: "2h40" }, activities: [
                     { name: "Départ La Rochelle", addr: "La Rochelle", coords: [46.160, -1.150] },
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords, dist: "205km", dur: "2h40" }
-                ], description: "Trajet direct. Arrivée prévue en fin d'après-midi pour l'installation au gîte." },
+                ], description: "Trajet direct vers votre gîte." },
                 { id: 1, dayName: "Dimanche", color: "#3b82f6", title: "L'Ouest & Nocturne", stats: { km: 45, time: "1h10" }, activities: [
                     { name: "La Chapelle-sur-Loire", addr: homeAddr, coords: homeCoords },
                     { name: "Château d'Ussé", addr: "Rigny-Ussé", coords: [47.250, 0.291], dist: "6km", dur: "10min", img: "https://montjoye.net/images/Centre-Val-de-Loire/indre-et-loire-37/usse/chateau-usse.webp" },
@@ -228,11 +228,20 @@
                 } catch (err) { setAiResponse("Erreur guide."); } finally { setIsLoading(false); }
             };
 
+            const selectedItinerary = useMemo(() => {
+                return itinerary[focusedRoute ?? selectedDay];
+            }, [focusedRoute, selectedDay]);
+
+            const galleryActivities = useMemo(() => {
+                if (!selectedItinerary) return [];
+                return selectedItinerary.activities.filter(act => act.name !== "La Chapelle-sur-Loire" && act.name !== "Départ La Rochelle");
+            }, [selectedItinerary]);
+
             return (
                 <div className="relative w-screen h-screen overflow-hidden bg-slate-100">
                     <div id="map"></div>
 
-                    {/* Day Selector : Disposition Verticale Optimisée Smartphone */}
+                    {/* Day Selector */}
                     <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-1.5 h-[calc(100vh-120px)] overflow-y-auto no-scrollbar pointer-events-none pb-12">
                         <button 
                             onClick={() => { setSelectedDay(null); setFocusedRoute(null); }}
@@ -260,29 +269,54 @@
                     </div>
 
                     {/* Bottom Info Panel */}
-                    {(focusedRoute !== null || selectedDay !== null) && (
+                    {selectedItinerary && (
                         <div className="absolute bottom-4 left-4 right-4 z-[1000] md:max-w-sm md:left-auto md:right-6 animate-in slide-in-from-bottom-4 duration-300">
-                            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[40vh] flex flex-col">
+                            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[60vh] flex flex-col">
                                 <div className="p-5 overflow-y-auto custom-scrollbar">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-inner" style={{ background: itinerary[focusedRoute ?? selectedDay].color }}><Icon name="Navigation" className="w-5 h-5" /></div>
+                                            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-inner" style={{ background: selectedItinerary.color }}><Icon name="Navigation" className="w-5 h-5" /></div>
                                             <div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{itinerary[focusedRoute ?? selectedDay].dayName}</div>
-                                                <div className="font-black text-lg text-slate-800 leading-tight">{itinerary[focusedRoute ?? selectedDay].title}</div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedItinerary.dayName}</div>
+                                                <div className="font-black text-lg text-slate-800 leading-tight">{selectedItinerary.title}</div>
                                             </div>
                                         </div>
                                         <button onClick={() => { setFocusedRoute(null); if (selectedDay !== null && focusedRoute === null) setSelectedDay(null); }} className="p-2 text-slate-300"><Icon name="X" /></button>
                                     </div>
+
+                                    {/* Galerie de Vignettes (Excluant le gîte) */}
+                                    {galleryActivities.length > 0 && (
+                                        <div className="mb-6">
+                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Aperçu des étapes</div>
+                                            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                                                {galleryActivities.map((act, i) => (
+                                                    <div key={i} className="flex-shrink-0 w-32 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                                                        <div className="h-20 w-full bg-slate-200">
+                                                            {act.img ? (
+                                                                <img src={act.img} alt={act.name} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                                                    <Icon name="ImageIcon" className="w-6 h-6" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="p-2">
+                                                            <div className="text-[10px] font-bold text-slate-800 truncate">{act.name}</div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                     
                                     <div className="flex gap-4 mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                                        <div className="flex-1 text-center"><div className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Route</div><div className="text-sm font-black text-indigo-700">{itinerary[focusedRoute ?? selectedDay].stats.km} km</div></div>
+                                        <div className="flex-1 text-center"><div className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Route</div><div className="text-sm font-black text-indigo-700">{selectedItinerary.stats.km} km</div></div>
                                         <div className="w-px bg-slate-200"></div>
-                                        <div className="flex-1 text-center"><div className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Conduite</div><div className="text-sm font-black text-indigo-700">{itinerary[focusedRoute ?? selectedDay].stats.time}</div></div>
+                                        <div className="flex-1 text-center"><div className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Conduite</div><div className="text-sm font-black text-indigo-700">{selectedItinerary.stats.time}</div></div>
                                     </div>
 
                                     <div className="space-y-2">
-                                        {itinerary[focusedRoute ?? selectedDay].activities.map((act, i) => {
+                                        {selectedItinerary.activities.map((act, i) => {
                                             const isH = act.name === "La Chapelle-sur-Loire";
                                             const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.addr + ' ' + act.name)}`;
                                             return (
@@ -303,7 +337,7 @@
                         </div>
                     )}
 
-                    {/* Modals : Assistant / Booking / Plan B */}
+                    {/* Modals */}
                     {showAssistant && (
                         <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 flex items-end sm:items-center justify-center" onClick={() => setShowAssistant(false)}>
                             <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
