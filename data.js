@@ -22,7 +22,8 @@ const IMAGES = {
   aquarium: "https://www.aquariumdetouraine.com/fileadmin/_processed_/9/7/csm_Tom_Bess%C3%A9-2025-69_b1ec0bcf0e.jpg",
   retro: "https://www.azay-chinon-valdeloire.com/wp-content/uploads/2024/09/3-musee-maurice-dufresne-jean-christophe-coutand-2031-12-31-medium-300x200.jpeg",
   troglodyte: "https://i.familiscope.fr/2000x1125/smart/2022/04/25/rochemenier-village-troglodytique.jpg",
-  fleche: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMz5ftufapWFx3EFVRnUVhMC4pZo1JLfFF9g&s"
+  fleche: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMz5ftufapWFx3EFVRnUVhMC4pZo1JLfFF9g&s",
+  bateau: "https://cdt49.media.tourinsoft.eu/upload/balade-bateau-croisiere-mauges-loire-vent-soulair-florent-vieil--1-.jpg"
 };
 
 window.VOYAGE_DATA = {
@@ -62,6 +63,7 @@ window.VOYAGE_DATA = {
     { "id": "aquarium", "name": "Grand Aquarium de Touraine", "addr": "Avenue du Parc, 37400 Lussault-sur-Loire", "coords": [47.3877, 0.9231], "dist": "52 km", "dur": "48 min", "img": IMAGES.aquarium },
     { "id": "fleche", "name": "Zoo de la Flèche", "addr": "Le Tertre Rouge, 72200 La Flèche", "coords": [47.6961, -0.0575], "dist": "62 km", "dur": "1h05", "img": IMAGES.fleche },
     { "id": "retro", "name": "Cité de la rétro mécanique (Musée Dufresne)", "addr": "17 route de Marnay, 37190 Azay-le-Rideau", "coords": [47.2447, 0.4072], "dist": "18 km", "dur": "22 min", "img": IMAGES.retro },
-    { "id": "troglodyte", "name": "Village Troglodyte (Rochemenier)", "addr": "14 Rue du Musée, 49700 Louresse-Rochemenier", "coords": [47.2348, -0.2974], "dist": "38 km", "dur": "42 min", "img": IMAGES.troglodyte }
+    { "id": "troglodyte", "name": "Village Troglodyte (Rochemenier)", "addr": "14 Rue du Musée, 49700 Louresse-Rochemenier", "coords": [47.2348, -0.2974], "dist": "38 km", "dur": "42 min", "img": IMAGES.troglodyte },
+    { "id": "bateaux", "name": "Bâteau sur la Loire", "addr": "Bec du, 37510 Villandry", "coords": [47.341899, 0.479269], "dist": "25 km", "dur": "26 min", "img": IMAGES.bateau }
   ]
 };
