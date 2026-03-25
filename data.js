@@ -41,6 +41,7 @@ window.VOYAGE_DATA = {
     { "id": 6, "dayName": "Vendredi", "color": "#6366f1", "title": "Azay & rétro-tech", "route": ["location", "azayRideau", "retro"] }
   ],
   "points_of_interest": [
+    { "id": "LR", "name": "Aytré", "addr": "17440 Aytré", "coords": [46.1356, -1.1230], "dist": "203 km", "dur": "2h56", "img": IMAGES.LR },
     { "id": "location", "name": "La Chapelle-sur-Loire", "addr": "37140 La Chapelle-sur-Loire", "coords": [47.243, 0.222], "dist": "0 km", "dur": "0 min", "img": IMAGES.location },
     { "id": "usse", "name": "Château d'Ussé", "addr": "37420 Rigny-Ussé", "coords": [47.250, 0.291], "dist": "6 km", "dur": "10 min", "img": IMAGES.usse },
     { "id": "langeais", "name": "Château de Langeais", "addr": "37130 Langeais", "coords": [47.325, 0.406], "dist": "15 km", "dur": "20 min", "img": IMAGES.langeais },
@@ -48,10 +49,9 @@ window.VOYAGE_DATA = {
     { "id": "closLuce", "name": "Le Clos Lucé", "addr": "37400 Amboise", "coords": [47.410, 0.992], "dist": "58 km", "dur": "55 min", "img": IMAGES.closLuce, "bookingTips": "Billet coupe-file recommandé." },
     { "id": "fontevraud", "name": "Abbaye Fontevraud", "addr": "49590 Fontevraud", "coords": [47.181, 0.050], "dist": "18 km", "dur": "25 min", "img": IMAGES.fontevraud },
     { "id": "azayRideau", "name": "Azay-le-Rideau", "addr": "37190 Azay-le-Rideau", "coords": [47.259, 0.465], "dist": "22 km", "dur": "28 min", "img": IMAGES.azayRideau },
-    { "id": "chenonceau", "name": "Chenonceau", "addr": "37150 Chenonceaux", "coords": [47.325, 1.070], "dist": "65 km", "dur": "1h05", "img": IMAGES.chenonceau, "bookingTips": "RÉSERVATION OBLIGATOIRE." },
-    { "id": "chambord", "name": "Château de Chambord", "addr": "41250 Chambord", "coords": [47.616, 1.517], "dist": "105 km", "dur": "1h20", "img": IMAGES.chambord },
+    { "id": "chenonceau", "name": "Chenonceau", "addr": "37150 Chenonceaux", "coords": [47.325, 1.070], "dist": "65 km", "dur": "1h05", "img": IMAGES.chenonceau, "bookingTips": "Réservation indispensable." },
+    { "id": "chambord", "name": "Château de Chambord", "addr": "41250 Chambord", "coords": [47.616, 1.517], "dist": "105 km", "dur": "1h20", "img": IMAGES.chambord, "bookingTips": "Billet coupe-file recommandé." },
     { "id": "villandry", "name": "Château de Villandry", "addr": "37510 Villandry", "coords": [47.340, 0.512], "dist": "30 km", "dur": "35 min", "img": IMAGES.villandry },
-    { "id": "LR", "name": "Aytré", "addr": "17440 Aytré", "coords": [46.1356, -1.1230], "dist": "203 km", "dur": "2h56", "img": IMAGES.LR },
     { "id": "canoe", "name": "Canoë sur le Cher", "addr": "37150 Chisseaux", "coords": [47.3289, 1.0885], "dist": "77 km", "dur": "59 min", "img": IMAGES.canoe, "bookingTips": "Réservation indispensable." },
     { "id": "magie", "name": "Maison de la magie", "addr": "41000 Blois", "coords": [47.5861, 1.3331], "dist": "116 km", "dur": "1h30", "img": IMAGES.magie },
     { "id": "mini", "name": "Mini Châteaux", "addr": "37400 Amboise", "coords": [47.399, 1.001], "dist": "75 km", "dur": "1h", "img": IMAGES.mini },
