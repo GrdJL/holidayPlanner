@@ -26,7 +26,7 @@ const IMAGES = {
   bateau: "https://cdt49.media.tourinsoft.eu/upload/balade-bateau-croisiere-mauges-loire-vent-soulair-florent-vieil--1-.jpg",
   champi: "https://www.le-champignon.com/wp-content/uploads/2023/04/cavedesroches-home1.jpg",
   cadre: "https://www.ifce.fr/wp-content/uploads/2014/07/CN_GRAND_MANEGE_gala-2018-1.jpg",
-  jardins: "httpshttps://www.jardinez.com/parc/pj/41chaumont_1/1.jpg"
+  jardins: "https://www.jardinez.com/parc/pj/41chaumont_1/1.jpg"
 };
 
 window.VOYAGE_DATA = {
