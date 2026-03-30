@@ -23,7 +23,10 @@ const IMAGES = {
   retro: "https://www.azay-chinon-valdeloire.com/wp-content/uploads/2024/09/3-musee-maurice-dufresne-jean-christophe-coutand-2031-12-31-medium-300x200.jpeg",
   troglodyte: "https://i.familiscope.fr/2000x1125/smart/2022/04/25/rochemenier-village-troglodytique.jpg",
   fleche: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMz5ftufapWFx3EFVRnUVhMC4pZo1JLfFF9g&s",
-  bateau: "https://cdt49.media.tourinsoft.eu/upload/balade-bateau-croisiere-mauges-loire-vent-soulair-florent-vieil--1-.jpg"
+  bateau: "https://cdt49.media.tourinsoft.eu/upload/balade-bateau-croisiere-mauges-loire-vent-soulair-florent-vieil--1-.jpg",
+  champi: "https://www.le-champignon.com/wp-content/uploads/2023/04/cavedesroches-home1.jpg",
+  cadre: "https://www.ifce.fr/wp-content/uploads/2014/07/CN_GRAND_MANEGE_gala-2018-1.jpg",
+  jardins: "httpshttps://www.jardinez.com/parc/pj/41chaumont_1/1.jpg"
 };
 
 window.VOYAGE_DATA = {
@@ -64,6 +67,9 @@ window.VOYAGE_DATA = {
     { "id": "fleche", "name": "Zoo de la Flèche", "addr": "Le Tertre Rouge, 72200 La Flèche", "coords": [47.6961, -0.0575], "dist": "62 km", "dur": "1h05", "img": IMAGES.fleche },
     { "id": "retro", "name": "Cité de la rétro mécanique (Musée Dufresne)", "addr": "17 route de Marnay, 37190 Azay-le-Rideau", "coords": [47.2447, 0.4072], "dist": "18 km", "dur": "22 min", "img": IMAGES.retro },
     { "id": "troglodyte", "name": "Village Troglodyte (Rochemenier)", "addr": "14 Rue du Musée, 49700 Louresse-Rochemenier", "coords": [47.2348, -0.2974], "dist": "38 km", "dur": "42 min", "img": IMAGES.troglodyte },
-    { "id": "bateaux", "name": "Bâteau sur la Loire", "addr": "Bec du, 37510 Villandry", "coords": [47.341899, 0.479269], "dist": "25 km", "dur": "26 min", "img": IMAGES.bateau }
+    { "id": "bateaux", "name": "Bâteau sur la Loire", "addr": "Bec du, 37510 Villandry", "coords": [47.341899, 0.479269], "dist": "25 km", "dur": "26 min", "img": IMAGES.bateau },
+    { "id": "champi", "name": "Cave des Roches (champignonnière)", "addr": "40 route des Roches - 41400 Bourré", "coords": [47.350658, 1.225152], "dist": "90 km", "dur": "1h10", "img": IMAGES.champi },
+    { "id": "cadre", "name": "La cadre noir de Saumur", "addr": "170 Av. Ecole Nationale d’Equitation, 49400 Saumur", "coords": [47.263157, -0.132579], "dist": "35 km", "dur": "33 min", "img": IMAGES.cadre },
+    { "id": "jardins", "name": "Festival international des jardin de Chaumont", "addr": "Domaine de Chaumont-sur-Loire, 41150 Chaumont-sur-Loire", "coords": [47.475990, 1.183121], "dist": "98km", "dur": "1h20", "img": IMAGES.jardins }
   ]
 };
